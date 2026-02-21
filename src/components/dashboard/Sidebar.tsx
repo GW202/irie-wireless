@@ -69,7 +69,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-4 py-5 border-b border-border flex items-center justify-between">
-        <IrieLogo height={24} variant="full" />
+        <IrieLogo height={26} variant="horizontal" />
         <span className="text-text-3 font-normal text-[0.6rem] font-mono">v2.4</span>
       </div>
 
