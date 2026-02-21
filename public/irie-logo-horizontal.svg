@@ -1,0 +1,79 @@
+<svg width="960" height="192" viewBox="0 0 320 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- === Icon Mark === -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#logoBg)" stroke="url(#logoStroke)" stroke-width="1.5"/>
+
+  <!-- Circuit traces -->
+  <path d="M8 16h6l4 4h8" stroke="rgba(0,229,255,0.15)" stroke-width="1" stroke-linecap="round"/>
+  <path d="M56 48h-6l-4-4h-8" stroke="rgba(0,255,157,0.15)" stroke-width="1" stroke-linecap="round"/>
+  <path d="M48 8v6l-4 4v6" stroke="rgba(0,229,255,0.12)" stroke-width="1" stroke-linecap="round"/>
+  <path d="M16 56v-6l4-4v-6" stroke="rgba(0,255,157,0.12)" stroke-width="1" stroke-linecap="round"/>
+
+  <!-- Node dots -->
+  <circle cx="8" cy="16" r="1.5" fill="rgba(0,229,255,0.3)"/>
+  <circle cx="56" cy="48" r="1.5" fill="rgba(0,255,157,0.3)"/>
+  <circle cx="48" cy="8" r="1.5" fill="rgba(0,229,255,0.2)"/>
+  <circle cx="16" cy="56" r="1.5" fill="rgba(0,255,157,0.2)"/>
+
+  <!-- I letterform -->
+  <path d="M17 19h6v26h-6z" fill="url(#letterGradient)"/>
+  <rect x="16" y="18" width="8" height="2.5" rx="1" fill="url(#letterGradient)"/>
+  <rect x="16" y="43.5" width="8" height="2.5" rx="1" fill="url(#letterGradient)"/>
+
+  <!-- W letterform -->
+  <path d="M28 19h5.5l4 17.5L41 24l3.5 12.5L49 19h5.5l-8 27h-5l-3-10.5-3 10.5h-5l-8-27z" fill="url(#letterGradient)"/>
+
+  <!-- Orbital ring -->
+  <ellipse cx="32" cy="32" rx="28" ry="8" transform="rotate(-20 32 32)" stroke="url(#orbitGradient)" stroke-width="0.8" fill="none" opacity="0.4"/>
+
+  <!-- Active orbital node -->
+  <circle cx="55" cy="24" r="2.5" fill="url(#letterGradient)" opacity="0.8"/>
+  <circle cx="55" cy="24" r="4" stroke="rgba(0,229,255,0.3)" stroke-width="0.5" fill="none"/>
+
+  <!-- === Wordmark === -->
+
+  <!-- "IRIE" — primary, gradient, bold -->
+  <text x="78" y="34" font-family="'Sora', system-ui, -apple-system, sans-serif" font-weight="700" font-size="26" letter-spacing="0.5" fill="url(#wordGradient)" dominant-baseline="central">IRIE</text>
+
+  <!-- Accent divider -->
+  <rect x="150" y="18" width="1.5" height="28" rx="0.75" fill="url(#wordGradient)" opacity="0.3"/>
+
+  <!-- "WIRELESS" — secondary, white, regular weight -->
+  <text x="156" y="34" font-family="'Sora', system-ui, -apple-system, sans-serif" font-weight="400" font-size="26" letter-spacing="2" fill="#e8edf5" dominant-baseline="central">WIRELESS</text>
+
+  <!-- Decorative circuit cluster — top right -->
+  <circle cx="304" cy="14" r="2" fill="url(#wordGradient)" opacity="0.5"/>
+  <circle cx="304" cy="14" r="4" stroke="rgba(0,229,255,0.15)" stroke-width="0.5" fill="none"/>
+  <path d="M298 14h-12" stroke="rgba(0,229,255,0.1)" stroke-width="0.5" stroke-linecap="round"/>
+  <circle cx="286" cy="14" r="1" fill="rgba(0,229,255,0.2)"/>
+
+  <!-- Decorative baseline track -->
+  <path d="M78 52h228" stroke="rgba(0,229,255,0.06)" stroke-width="0.5"/>
+  <circle cx="78" cy="52" r="1.5" fill="rgba(0,229,255,0.12)"/>
+  <circle cx="306" cy="52" r="1.5" fill="rgba(0,255,157,0.12)"/>
+
+  <!-- === Gradient Definitions === -->
+  <defs>
+    <linearGradient id="logoBg" x1="0" y1="0" x2="64" y2="64">
+      <stop offset="0%" stop-color="#0a0e14"/>
+      <stop offset="100%" stop-color="#0d1219"/>
+    </linearGradient>
+    <linearGradient id="logoStroke" x1="0" y1="0" x2="64" y2="64">
+      <stop offset="0%" stop-color="rgba(0,229,255,0.4)"/>
+      <stop offset="50%" stop-color="rgba(0,255,157,0.2)"/>
+      <stop offset="100%" stop-color="rgba(0,229,255,0.4)"/>
+    </linearGradient>
+    <linearGradient id="letterGradient" x1="16" y1="18" x2="56" y2="48">
+      <stop offset="0%" stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#00ff9d"/>
+    </linearGradient>
+    <linearGradient id="orbitGradient" x1="4" y1="32" x2="60" y2="32">
+      <stop offset="0%" stop-color="rgba(0,229,255,0)"/>
+      <stop offset="50%" stop-color="rgba(0,229,255,0.6)"/>
+      <stop offset="100%" stop-color="rgba(0,255,157,0)"/>
+    </linearGradient>
+    <linearGradient id="wordGradient" x1="78" y1="20" x2="160" y2="44">
+      <stop offset="0%" stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#00ff9d"/>
+    </linearGradient>
+  </defs>
+</svg>

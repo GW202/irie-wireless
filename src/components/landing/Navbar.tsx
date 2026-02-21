@@ -28,7 +28,7 @@ export default function Navbar({ onContactClick }: NavbarProps) {
             : 'py-5 px-4 md:px-8 bg-[rgba(6,8,12,0.8)]'
         }`}
       >
-        <IrieLogo size={32} showText />
+        <IrieLogo height={30} variant="full" />
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-10">
@@ -63,7 +63,7 @@ export default function Navbar({ onContactClick }: NavbarProps) {
       {mobileOpen && (
         <div className="fixed inset-0 z-[200] bg-bg-0/95 backdrop-blur-lg flex flex-col animate-[fadeIn_0.2s_ease]">
           <div className="flex items-center justify-between p-6">
-            <IrieLogo size={32} showText />
+            <IrieLogo height={30} variant="full" />
             <button
               onClick={() => setMobileOpen(false)}
               className="w-8 h-8 flex items-center justify-center text-text-2"
