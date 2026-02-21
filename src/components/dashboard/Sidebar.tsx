@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import IrieLogo from '@/components/ui/IrieLogo';
 import {
   LayoutGrid,
   BarChart3,
@@ -69,10 +69,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-border flex items-center gap-2.5 font-bold text-[0.95rem] tracking-tight">
-        <div className="w-7 h-7 rounded-md bg-gradient-to-br from-accent-cyan to-accent-green flex items-center justify-center text-[0.7rem] font-bold text-bg-0">
-          IW
-        </div>
-        Irie Wireless
+        <IrieLogo size={28} showText />
         <span className="ml-auto text-text-3 font-normal text-[0.7rem] font-mono">v2.4</span>
       </div>
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { NAV_LINKS } from '@/lib/constants';
+import IrieLogo from '@/components/ui/IrieLogo';
 
 interface NavbarProps {
   onContactClick: () => void;
@@ -23,16 +24,11 @@ export default function Navbar({ onContactClick }: NavbarProps) {
       <nav
         className={`fixed top-0 left-0 right-0 z-[100] flex items-center justify-between transition-all duration-300 border-b border-border backdrop-blur-[20px] ${
           scrolled
-            ? 'py-3 px-8 bg-[rgba(6,8,12,0.95)]'
-            : 'py-5 px-8 bg-[rgba(6,8,12,0.8)]'
+            ? 'py-3 px-4 md:px-8 bg-[rgba(6,8,12,0.95)]'
+            : 'py-5 px-4 md:px-8 bg-[rgba(6,8,12,0.8)]'
         }`}
       >
-        <div className="flex items-center gap-2 font-display font-bold text-[1.3rem] tracking-tight">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-cyan to-accent-green flex items-center justify-center font-bold text-[0.85rem] text-bg-0">
-            IW
-          </div>
-          Irie Wireless
-        </div>
+        <IrieLogo size={32} showText />
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-10">
@@ -67,12 +63,7 @@ export default function Navbar({ onContactClick }: NavbarProps) {
       {mobileOpen && (
         <div className="fixed inset-0 z-[200] bg-bg-0/95 backdrop-blur-lg flex flex-col animate-[fadeIn_0.2s_ease]">
           <div className="flex items-center justify-between p-6">
-            <div className="flex items-center gap-2 font-display font-bold text-lg">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-cyan to-accent-green flex items-center justify-center font-bold text-[0.85rem] text-bg-0">
-                IW
-              </div>
-              Irie Wireless
-            </div>
+            <IrieLogo size={32} showText />
             <button
               onClick={() => setMobileOpen(false)}
               className="w-8 h-8 flex items-center justify-center text-text-2"

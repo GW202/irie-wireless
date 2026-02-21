@@ -6,8 +6,8 @@ import { sectionVariants, containerVariants, itemVariants } from '@/lib/animatio
 
 export default function ProblemSection() {
   return (
-    <section className="py-32 bg-bg-1 relative" id="platform">
-      <div className="max-w-[1200px] mx-auto px-8">
+    <section className="py-32 bg-bg-1 relative overflow-hidden" id="platform">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
         <motion.div
           variants={sectionVariants}
           initial="hidden"
@@ -36,7 +36,7 @@ export default function ProblemSection() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
         >
-          <motion.div className="flex flex-col gap-2 p-8" variants={itemVariants}>
+          <motion.div className="flex flex-col gap-2 p-4 md:p-8" variants={itemVariants}>
             {PROBLEM_NODES.map((node, i) => (
               <div
                 key={node}
@@ -46,7 +46,7 @@ export default function ProblemSection() {
                 {node}
                 {i % 2 === 0 && (
                   <span
-                    className="absolute -right-7 top-1/2 w-7 h-px"
+                    className="absolute -right-7 top-1/2 w-7 h-px hidden lg:block"
                     style={{
                       background:
                         'repeating-linear-gradient(90deg, #ff4444 0, #ff4444 4px, transparent 4px, transparent 8px)',

@@ -7,7 +7,7 @@ import { sectionVariants, containerVariants, itemVariants } from '@/lib/animatio
 export default function FutureState() {
   return (
     <section className="py-32 bg-bg-1">
-      <div className="max-w-[1200px] mx-auto px-8">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
         <motion.div
           className="text-center"
           variants={sectionVariants}

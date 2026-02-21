@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { GLOBE_COUNTRIES, GLOBE_LINKS, REGION_COLORS } from '@/lib/constants';
+import { CONTINENT_OUTLINES } from '@/lib/continents';
 import { sectionVariants } from '@/lib/animations';
 
 interface BgDot {
@@ -169,6 +170,53 @@ export default function GlobalVision() {
         ctx.stroke();
       }
 
+      // Continent outlines
+      for (const outline of CONTINENT_OUTLINES) {
+        ctx.beginPath();
+        let started = false;
+        let prevZ = 0;
+        for (let i = 0; i < outline.length; i++) {
+          const [lat, lng] = outline[i];
+          const p = project(lat, lng, cx, cy, R, rot);
+          if (p.z < 0) {
+            started = false;
+            prevZ = p.z;
+            continue;
+          }
+          if (!started || prevZ < 0) {
+            ctx.moveTo(p.px, p.py);
+            started = true;
+          } else {
+            ctx.lineTo(p.px, p.py);
+          }
+          prevZ = p.z;
+        }
+        ctx.strokeStyle = 'rgba(0, 229, 255, 0.12)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        // Subtle fill for land masses
+        ctx.beginPath();
+        started = false;
+        for (let i = 0; i < outline.length; i++) {
+          const [lat, lng] = outline[i];
+          const p = project(lat, lng, cx, cy, R, rot);
+          if (p.z < 0) {
+            started = false;
+            continue;
+          }
+          if (!started) {
+            ctx.moveTo(p.px, p.py);
+            started = true;
+          } else {
+            ctx.lineTo(p.px, p.py);
+          }
+        }
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(0, 229, 255, 0.03)';
+        ctx.fill();
+      }
+
       // Background dots
       for (const d of bgDotsRef.current) {
         const p = project(d.lat, d.lng, cx, cy, R, rot);
@@ -300,7 +348,7 @@ export default function GlobalVision() {
 
   return (
     <section className="py-32 bg-bg-1 text-center" id="vision">
-      <div className="max-w-[1200px] mx-auto px-8">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
         <motion.div
           variants={sectionVariants}
           initial="hidden"

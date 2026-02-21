@@ -10,10 +10,10 @@ interface FinalCTAProps {
 
 export default function FinalCTA({ onContactClick }: FinalCTAProps) {
   return (
-    <section className="text-center py-40 relative" id="contact">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[radial-gradient(ellipse,rgba(0,229,255,0.06)_0%,transparent_70%)] pointer-events-none" />
+    <section className="text-center py-40 relative overflow-hidden" id="contact">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[600px] h-[300px] bg-[radial-gradient(ellipse,rgba(0,229,255,0.06)_0%,transparent_70%)] pointer-events-none" />
 
-      <div className="max-w-[1200px] mx-auto px-8 relative z-[2]">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8 relative z-[2]">
         <motion.div
           variants={sectionVariants}
           initial="hidden"

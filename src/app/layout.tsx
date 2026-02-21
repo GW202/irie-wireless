@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   title: 'Irie Wireless — The Control Plane for Global Wireless Infrastructure',
   description:
     'Irie Wireless orchestrates carrier, wholesale, and billing systems through a unified API layer — powering scalable multi-brand telecom operations worldwide.',
+  icons: {
+    icon: '/irie-logo.svg',
+  },
   openGraph: {
     title: 'Irie Wireless — Telecom Orchestration Platform',
     description:

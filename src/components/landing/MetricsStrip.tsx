@@ -7,7 +7,7 @@ import { sectionVariants } from '@/lib/animations';
 export default function MetricsStrip() {
   return (
     <section className="py-32">
-      <div className="max-w-[1200px] mx-auto px-8">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
         <motion.div
           className="text-center"
           variants={sectionVariants}

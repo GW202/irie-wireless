@@ -8,32 +8,25 @@ interface HeroProps {
 
 export default function Hero({ onContactClick }: HeroProps) {
   return (
-    <section className="min-h-screen flex items-center relative pt-20" id="hero">
-      <div className="max-w-[1200px] mx-auto px-8 w-full">
+    <section className="min-h-screen flex items-center relative pt-20 overflow-hidden" id="hero">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8 w-full">
         <div className="relative z-[2] max-w-[800px]">
-          <div
-            className="inline-flex items-center gap-2 font-mono text-[0.7rem] font-normal text-accent-cyan px-4 py-1.5 border border-accent-cyan/20 rounded-full mb-8 tracking-[0.08em] uppercase bg-accent-cyan/[0.04] opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.2s]"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-[pulse_2s_ease_infinite]" />
-            Telecom Orchestration Platform
-          </div>
-
           <h1
-            className="text-[clamp(2.8rem,6vw,4.5rem)] font-bold leading-[1.08] tracking-[-0.035em] mb-6 opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.4s]"
+            className="text-[clamp(2.8rem,6vw,4.5rem)] font-bold leading-[1.08] tracking-[-0.035em] mb-6 opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.2s]"
           >
             The Control Plane for{' '}
             <span className="gradient-text">Global Wireless</span> Infrastructure
           </h1>
 
           <p
-            className="text-lg leading-relaxed text-text-2 max-w-[580px] mb-10 opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.6s]"
+            className="text-lg leading-relaxed text-text-2 max-w-[580px] mb-10 opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.4s]"
           >
             Irie Wireless orchestrates carrier, wholesale, and billing systems through a unified
             API layer — powering scalable multi-brand telecom operations worldwide.
           </p>
 
           <div
-            className="flex gap-4 flex-wrap opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.8s] max-md:flex-col"
+            className="flex gap-4 flex-wrap opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.6s] max-md:flex-col"
           >
             <a
               href="/dashboard"

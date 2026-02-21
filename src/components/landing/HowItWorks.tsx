@@ -7,7 +7,7 @@ import { sectionVariants, containerVariants, cardVariants } from '@/lib/animatio
 export default function HowItWorks() {
   return (
     <section className="py-32 bg-bg-1" id="how">
-      <div className="max-w-[1200px] mx-auto px-8">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
         <motion.div
           className="text-center"
           variants={sectionVariants}

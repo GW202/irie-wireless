@@ -6,7 +6,7 @@ import { sectionVariants } from '@/lib/animations';
 export default function StructureClarity() {
   return (
     <section className="py-20">
-      <div className="max-w-[1200px] mx-auto px-8">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
         <motion.div
           className="text-center max-w-[700px] mx-auto"
           variants={sectionVariants}
@@ -18,7 +18,7 @@ export default function StructureClarity() {
             <span className="w-8 h-0.5 bg-gradient-to-r from-accent-cyan to-accent-green rounded-sm" />
             Structure
           </div>
-          <h2 className="text-[2.2rem] font-bold tracking-[-0.035em] leading-[1.1] mb-6">
+          <h2 className="text-[clamp(1.8rem,5vw,2.2rem)] font-bold tracking-[-0.035em] leading-[1.1] mb-6">
             Built for Licensed Operators.
             <br />
             Designed for Scale.

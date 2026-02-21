@@ -6,8 +6,8 @@ import { sectionVariants } from '@/lib/animations';
 
 export default function IrieLayer() {
   return (
-    <section className="py-32 relative" id="solution">
-      <div className="max-w-[1200px] mx-auto px-8">
+    <section className="py-32 relative overflow-hidden" id="solution">
+      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
         <motion.div
           className="text-center"
           variants={sectionVariants}

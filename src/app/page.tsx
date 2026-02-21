@@ -73,7 +73,7 @@ export default function LandingPage() {
   return (
     <>
       <ConstellationBg />
-      <div className="relative z-[1]">
+      <div className="relative z-[1] overflow-x-hidden">
         <Navbar onContactClick={openModal} />
         <Hero onContactClick={openModal} />
         <ProblemSection />
