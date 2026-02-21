@@ -1,0 +1,56 @@
+'use client';
+
+import { ArrowRight } from 'lucide-react';
+
+interface HeroProps {
+  onContactClick: () => void;
+}
+
+export default function Hero({ onContactClick }: HeroProps) {
+  return (
+    <section className="min-h-screen flex items-center relative pt-20" id="hero">
+      <div className="max-w-[1200px] mx-auto px-8 w-full">
+        <div className="relative z-[2] max-w-[800px]">
+          <div
+            className="inline-flex items-center gap-2 font-mono text-[0.7rem] font-normal text-accent-cyan px-4 py-1.5 border border-accent-cyan/20 rounded-full mb-8 tracking-[0.08em] uppercase bg-accent-cyan/[0.04] opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.2s]"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-[pulse_2s_ease_infinite]" />
+            Telecom Orchestration Platform
+          </div>
+
+          <h1
+            className="text-[clamp(2.8rem,6vw,4.5rem)] font-bold leading-[1.08] tracking-[-0.035em] mb-6 opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.4s]"
+          >
+            The Control Plane for{' '}
+            <span className="gradient-text">Global Wireless</span> Infrastructure
+          </h1>
+
+          <p
+            className="text-lg leading-relaxed text-text-2 max-w-[580px] mb-10 opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.6s]"
+          >
+            Irie Wireless orchestrates carrier, wholesale, and billing systems through a unified
+            API layer — powering scalable multi-brand telecom operations worldwide.
+          </p>
+
+          <div
+            className="flex gap-4 flex-wrap opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.8s] max-md:flex-col"
+          >
+            <a
+              href="/dashboard"
+              className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-br from-accent-cyan to-accent-green text-bg-0 font-semibold text-sm rounded-lg cursor-pointer transition-all duration-300 tracking-tight hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(0,229,255,0.25)]"
+            >
+              Explore the Platform
+              <ArrowRight size={16} />
+            </a>
+            <button
+              onClick={onContactClick}
+              className="inline-flex items-center gap-2 px-8 py-3.5 bg-transparent text-text-1 font-medium text-sm border border-border rounded-lg cursor-pointer transition-all duration-300 hover:border-text-3 hover:bg-white/[0.02]"
+            >
+              Partner With Irie
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
