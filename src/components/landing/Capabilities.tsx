@@ -19,12 +19,12 @@ export default function Capabilities() {
               — Platform Capabilities
             </div>
             <h2 className="text-[clamp(2.2rem,4vw,3.2rem)] font-bold leading-[1.1] mb-4">
-              Built for Infrastructure-Grade{' '}
-              <span className="gradient-text">Orchestration</span>
+              Built for Provider-Agnostic{' '}
+              <span className="gradient-text">MVNO Enablement</span>
             </h2>
             <p className="text-text-2 max-w-xl">
-              Everything operators and brands need to scale wireless operations without
-              rebuilding from scratch.
+              Everything MVNOs and digital carriers need to launch, scale, and switch providers
+              without rewriting a single line of frontend code.
             </p>
           </div>
         </motion.div>

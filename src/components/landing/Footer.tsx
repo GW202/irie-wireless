@@ -7,8 +7,8 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
         <IrieLogo height={24} variant="horizontal" />
         <p className="text-sm text-text-3">
-          &copy; 2026 Irie Wireless. All rights reserved. Built for the programmable telecom
-          future.
+          &copy; 2026 Irie Wireless. All rights reserved. The provider-agnostic telecom
+          infrastructure layer.
         </p>
         <div className="flex gap-6 text-text-3">
           <a href="#" className="hover:text-accent-cyan transition-colors">

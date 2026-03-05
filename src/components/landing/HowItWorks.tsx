@@ -23,7 +23,7 @@ export default function HowItWorks() {
             How It Works
           </h2>
           <p className="text-lg text-text-2 leading-relaxed max-w-[620px] mx-auto">
-            From integration to infinite scale in four steps.
+            From BSS abstraction to rapid MVNO deployment in four steps.
           </p>
         </motion.div>
 

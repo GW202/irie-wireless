@@ -5,10 +5,10 @@ import { PROBLEM_ITEMS } from '@/lib/constants';
 import { containerVariants, itemVariants } from '@/lib/animations';
 
 const LEGACY_NODES = [
-  'Carrier APIs',
-  'Wholesale Platforms',
-  'BSS / Billing Systems',
-  'SIM Provisioning',
+  'Telgoo5 BSS',
+  'Netcracker BSS',
+  'Direct Carrier APIs',
+  'Provider-Specific Billing',
 ];
 
 export default function ProblemSection() {
@@ -27,13 +27,13 @@ export default function ProblemSection() {
               — The Problem
             </div>
             <h2 className="text-[clamp(2.2rem,4vw,3.2rem)] font-bold leading-[1.1] mb-6">
-              Telecom Infrastructure Was Never Designed for{' '}
-              <span className="gradient-text">Multi-Brand Scale</span>
+              BSS Systems Were Never Built for{' '}
+              <span className="gradient-text">Provider Flexibility</span>
             </h2>
             <p className="text-text-2 mb-8 leading-relaxed">
-              Every new brand launch requires custom integrations across fragmented systems.
-              Manual workflows. Brittle connections. Months of engineering for what should be
-              simple API calls.
+              Brands integrate directly with BSS providers. Switching Telgoo5 to Netcracker means
+              a full frontend rewrite. Launching a new MVNO means months of custom integration.
+              That&apos;s not infrastructure — that&apos;s vendor lock-in.
             </p>
             <ul className="space-y-4">
               {PROBLEM_ITEMS.slice(0, 2).map((item) => (
@@ -54,7 +54,7 @@ export default function ProblemSection() {
           <motion.div className="relative" variants={itemVariants}>
             <div className="bg-bg-0 border border-border rounded-2xl p-8 space-y-4 shadow-2xl">
               <div className="flex items-center justify-between border-b border-border pb-4 mb-4">
-                <span className="text-xs font-mono text-text-3">LEGACY_NODES.JSON</span>
+                <span className="text-xs font-mono text-text-3">DIRECT_BSS_COUPLING.JSON</span>
                 <div className="flex gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-full bg-accent-red/20" />
                   <div className="w-2.5 h-2.5 rounded-full bg-accent-amber/20" />
@@ -67,7 +67,7 @@ export default function ProblemSection() {
                   className="p-4 rounded border border-border bg-white/5 flex items-center justify-between"
                 >
                   <span className="text-sm font-mono text-text-2">{node}</span>
-                  <span className="text-[10px] text-accent-red/50 uppercase">Fragmented</span>
+                  <span className="text-[10px] text-accent-red/50 uppercase">Locked In</span>
                 </div>
               ))}
             </div>

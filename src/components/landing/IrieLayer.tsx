@@ -20,11 +20,11 @@ export default function IrieLayer() {
             The Irie Layer
           </div>
           <h2 className="text-[clamp(2.6rem,5.5vw,4rem)] font-bold tracking-[-0.035em] leading-[1.1] mb-6">
-            One Layer. <span className="gradient-text">Total Orchestration.</span>
+            One Abstraction Layer. <span className="gradient-text">Total Provider Flexibility.</span>
           </h2>
           <p className="text-lg text-text-2 leading-relaxed max-w-[620px] mx-auto">
-            Abstract. Automate. Scale. — Irie sits between telecom infrastructure and modern brand
-            distribution.
+            Brands integrate with Irie — not with Telgoo, not with Netcracker. We sit above BSS
+            systems, normalizing everything into a canonical telecom domain model.
           </p>
         </motion.div>
 
@@ -59,9 +59,9 @@ export default function IrieLayer() {
                 }}
               />
               <h3 className="text-[1.05rem] font-mono font-bold tracking-[0.1em] uppercase mb-3">
-                <span className="text-accent-cyan">Irie</span> Orchestration Engine
+                <span className="text-accent-cyan">Irie</span> Abstraction Engine
               </h3>
-              <p className="text-[0.92rem] text-text-3 font-mono">Normalize → Automate → Route</p>
+              <p className="text-[0.92rem] text-text-3 font-mono">Transform → Normalize → Route</p>
             </div>
 
             <div className="flex flex-col gap-3">

@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Irie Wireless — The Control Plane for Global Wireless Infrastructure',
+  title: 'Irie Wireless — Provider-Agnostic Telecom Infrastructure for Rapid MVNO Deployment',
   description:
-    'Irie Wireless orchestrates carrier, wholesale, and billing systems through a unified API layer — powering scalable multi-brand telecom operations worldwide.',
+    'Irie Wireless is a BSS abstraction and orchestration layer that decouples digital telecom brands from legacy systems — enabling rapid MVNO deployment without vendor lock-in.',
   icons: {
     icon: [
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
@@ -13,9 +13,9 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.png',
   },
   openGraph: {
-    title: 'Irie Wireless — Telecom Orchestration Platform',
+    title: 'Irie Wireless — Telecom Integration Platform',
     description:
-      'The control plane for global wireless infrastructure. Orchestrate carrier APIs, enable multi-brand operations, and scale telecom without limits.',
+      'A provider-agnostic telecom infrastructure layer that abstracts BSS complexity, enabling brands to launch, scale, and switch providers without technical disruption.',
     type: 'website',
   },
 };

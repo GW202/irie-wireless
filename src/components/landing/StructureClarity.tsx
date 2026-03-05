@@ -16,17 +16,17 @@ export default function StructureClarity() {
         >
           <div className="font-mono text-[0.8rem] uppercase tracking-[0.18em] text-accent-cyan mb-5 flex items-center gap-3 justify-center">
             <span className="w-8 h-0.5 bg-gradient-to-r from-accent-cyan to-accent-green rounded-sm" />
-            Structure
+            Strategic Position
           </div>
           <h2 className="text-[clamp(1.8rem,5vw,2.2rem)] font-bold tracking-[-0.035em] leading-[1.1] mb-6">
-            Built for Licensed Operators.
+            We Don&apos;t Compete With BSS Providers.
             <br />
-            Designed for Scale.
+            We Sit Above Them.
           </h2>
           <p className="text-text-2 text-[0.92rem] leading-relaxed mt-4">
-            Irie does not replace carriers or operators. We abstract infrastructure to accelerate
-            growth and automation. We operate alongside licensed telecom entities, enabling
-            orchestration without regulatory duplication.
+            Irie Wireless is not competing with Telgoo5, Netcracker, MNOs, or any BSS provider.
+            We are the abstraction layer that standardizes telecom domain representation —
+            so providers must adapt to you, not the other way around.
           </p>
         </motion.div>
       </div>

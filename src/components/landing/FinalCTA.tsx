@@ -9,9 +9,9 @@ interface FinalCTAProps {
 }
 
 const BENEFITS = [
-  'Free discovery workshop',
-  'Full API documentation access',
-  'Dedicated solution engineer',
+  'Free integration architecture workshop',
+  'Full canonical API documentation access',
+  'Dedicated BSS abstraction engineer',
 ];
 
 export default function FinalCTA({ onContactClick }: FinalCTAProps) {
@@ -29,11 +29,11 @@ export default function FinalCTA({ onContactClick }: FinalCTAProps) {
         >
           <div>
             <h2 className="text-[clamp(2.8rem,5vw,3.8rem)] font-extrabold text-text-1 mb-6">
-              Own the Integration Boundary
+              Control the Integration Boundary
             </h2>
             <p className="text-xl text-text-2 mb-8">
-              Start orchestrating your telecom future today. Our team will guide you through
-              the integration process.
+              Launch faster. Switch providers without rewriting. Reduce integration cost.
+              Own the canonical data layer. That&apos;s strategic power.
             </p>
             <div className="space-y-6">
               {BENEFITS.map((benefit) => (

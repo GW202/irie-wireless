@@ -22,17 +22,17 @@ export default function Hero({ onContactClick }: HeroProps) {
       <div className="max-w-7xl mx-auto text-center relative z-[1]">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent-cyan/20 bg-accent-cyan/5 text-accent-cyan text-xs font-mono mb-8 uppercase tracking-widest opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.1s]">
           <span className="flex h-2 w-2 rounded-full bg-accent-cyan animate-pulse" />
-          Telecom Integration Platform
+          BSS Abstraction & Orchestration Layer
         </div>
 
         <h1 className="text-[clamp(2.8rem,6vw,4.5rem)] font-extrabold text-text-1 leading-[1.1] mb-8 max-w-4xl mx-auto opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.2s]">
-          The Integration Layer That Decouples{' '}
+          The Infrastructure Layer That Decouples{' '}
           <span className="gradient-text">Brands From Legacy BSS</span>
         </h1>
 
         <p className="text-lg md:text-xl text-text-2 max-w-2xl mx-auto mb-12 opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.4s]">
-          Irie Wireless orchestrates carrier, wholesale, and billing systems through a unified
-          API layer — powering scalable multi-brand telecom operations worldwide.
+          Irie Wireless abstracts complex BSS systems into a unified, normalized platform —
+          enabling brands to launch, scale, and switch providers without technical disruption.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0 animate-[fadeUp_0.8s_ease_forwards_0.6s]">
@@ -46,7 +46,7 @@ export default function Hero({ onContactClick }: HeroProps) {
             onClick={onContactClick}
             className="w-full sm:w-auto px-8 py-4 bg-white/5 border border-border font-bold rounded-lg hover:bg-white/10 transition-all"
           >
-            Partner With Irie
+            Partner With Us
           </button>
         </div>
       </div>
