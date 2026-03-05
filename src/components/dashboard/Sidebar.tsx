@@ -5,55 +5,53 @@ import IrieLogo from '@/components/ui/IrieLogo';
 import {
   LayoutGrid,
   BarChart3,
-  Settings2,
-  Users,
+  Network,
+  GitBranch,
   Briefcase,
-  Wrench,
-  Flag,
   CreditCard,
-  Shield,
+  Key,
+  Settings,
   X,
+  LogOut,
   Menu,
 } from 'lucide-react';
 
-interface SidebarItemProps {
+interface SidebarNavItem {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
-  badge?: string;
-  badgeVariant?: 'default' | 'warn' | 'live';
-  onClick?: () => void;
 }
 
-function SidebarItem({ icon, label, active, badge, badgeVariant = 'default', onClick }: SidebarItemProps) {
-  const badgeClasses = {
-    default: 'bg-accent-cyan/10 text-accent-cyan',
-    warn: 'bg-accent-amber/10 text-accent-amber',
-    live: 'bg-accent-green/[0.12] text-accent-green',
-  };
+const MAIN_NAV: SidebarNavItem[] = [
+  { icon: <LayoutGrid size={18} />, label: 'Dashboard', active: true },
+  { icon: <BarChart3 size={18} />, label: 'Real-time Analytics' },
+  { icon: <Network size={18} />, label: 'Provider Adapters' },
+  { icon: <GitBranch size={18} />, label: 'Transformation Map' },
+];
 
+const NETWORK_NAV: SidebarNavItem[] = [
+  { icon: <Briefcase size={18} />, label: 'Tenant Brands' },
+  { icon: <CreditCard size={18} />, label: 'Inventory (SIM/eSIM)' },
+];
+
+const SECURITY_NAV: SidebarNavItem[] = [
+  { icon: <Key size={18} />, label: 'API Credentials' },
+  { icon: <Settings size={18} />, label: 'System Config' },
+];
+
+function NavItem({ icon, label, active }: SidebarNavItem) {
   return (
-    <div
-      className={`flex items-center gap-2.5 py-2 px-2.5 rounded-md text-[0.82rem] cursor-pointer transition-all duration-150 mb-0.5 relative ${
+    <a
+      href="#"
+      className={`flex items-center gap-3 px-3 py-2.5 transition-all ${
         active
-          ? 'bg-accent-cyan/[0.08] text-accent-cyan'
-          : 'text-text-2 hover:bg-bg-3 hover:text-text-1'
+          ? 'bg-accent-cyan/10 text-accent-cyan border-l-2 border-accent-cyan font-medium'
+          : 'text-text-2 hover:bg-white/5'
       }`}
-      onClick={onClick}
     >
-      {active && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-accent-cyan rounded-r-sm" />
-      )}
-      <span className={`w-4 h-4 shrink-0 ${active ? 'opacity-100' : 'opacity-60'}`}>{icon}</span>
-      {label}
-      {badge && (
-        <span
-          className={`ml-auto text-[0.6rem] font-mono px-1.5 py-0.5 rounded ${badgeClasses[badgeVariant]}`}
-        >
-          {badge}
-        </span>
-      )}
-    </div>
+      <span className={active ? 'opacity-100' : 'opacity-60'}>{icon}</span>
+      <span className="text-sm">{label}</span>
+    </a>
   );
 }
 
@@ -67,64 +65,59 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
 
   const content = (
     <div className="flex flex-col h-full">
-      {/* Logo */}
-      <div className="px-4 py-5 border-b border-border flex items-center justify-between">
-        <IrieLogo height={26} variant="horizontal" />
-        <span className="text-text-3 font-normal text-[0.6rem] font-mono">v2.4</span>
-      </div>
-
-      {/* Overview */}
-      <div className="py-4 px-3">
-        <div className="font-mono text-[0.6rem] uppercase tracking-[0.12em] text-text-3 px-2 mb-2">
-          Overview
+      <div className="p-6 flex items-center gap-3">
+        <div className="w-10 h-10 bg-accent-cyan rounded flex items-center justify-center">
+          <span className="text-bg-0 font-black text-xl tracking-tighter">IW</span>
         </div>
-        <SidebarItem icon={<LayoutGrid size={16} />} label="Dashboard" active onClick={onMobileClose} />
-        <SidebarItem icon={<BarChart3 size={16} />} label="Analytics" onClick={onMobileClose} />
-      </div>
-
-      {/* Orchestration */}
-      <div className="py-4 px-3">
-        <div className="font-mono text-[0.6rem] uppercase tracking-[0.12em] text-text-3 px-2 mb-2">
-          Orchestration
+        <div>
+          <h1 className="font-bold text-lg tracking-tight">
+            IRIE<span className="text-accent-cyan">.</span>
+          </h1>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-text-3 font-mono">
+            Control Plane
+          </p>
         </div>
-        <SidebarItem
-          icon={<Settings2 size={16} />}
-          label="Carrier APIs"
-          badge="3 live"
-          badgeVariant="live"
-          onClick={onMobileClose}
-        />
-        <SidebarItem icon={<Users size={16} />} label="Subscribers" badge="247K" onClick={onMobileClose} />
-        <SidebarItem icon={<Briefcase size={16} />} label="Brand Programs" badge="8" onClick={onMobileClose} />
-        <SidebarItem
-          icon={<Wrench size={16} />}
-          label="Workflows"
-          badge="2 alerts"
-          badgeVariant="warn"
-          onClick={onMobileClose}
-        />
       </div>
 
-      {/* Infrastructure */}
-      <div className="py-4 px-3">
-        <div className="font-mono text-[0.6rem] uppercase tracking-[0.12em] text-text-3 px-2 mb-2">
-          Infrastructure
+      <nav className="mt-4 px-4 space-y-1 flex-1">
+        <p className="px-3 text-[10px] font-bold text-text-3 uppercase tracking-widest mb-2">
+          Main Navigation
+        </p>
+        {MAIN_NAV.map((item) => (
+          <NavItem key={item.label} {...item} />
+        ))}
+
+        <div className="pt-6">
+          <p className="px-3 text-[10px] font-bold text-text-3 uppercase tracking-widest mb-2">
+            Network Assets
+          </p>
+          {NETWORK_NAV.map((item) => (
+            <NavItem key={item.label} {...item} />
+          ))}
         </div>
-        <SidebarItem icon={<Flag size={16} />} label="BSS Integrations" onClick={onMobileClose} />
-        <SidebarItem icon={<CreditCard size={16} />} label="SIM / eSIM" onClick={onMobileClose} />
-        <SidebarItem icon={<Shield size={16} />} label="Security" onClick={onMobileClose} />
-      </div>
 
-      {/* User */}
-      <div className="mt-auto p-4 border-t border-border">
-        <div className="flex items-center gap-2.5 p-2 rounded-md">
-          <div className="w-[30px] h-[30px] rounded-md bg-bg-4 flex items-center justify-center text-[0.65rem] font-semibold text-accent-cyan font-mono">
-            GA
+        <div className="pt-6">
+          <p className="px-3 text-[10px] font-bold text-text-3 uppercase tracking-widest mb-2">
+            Security
+          </p>
+          {SECURITY_NAV.map((item) => (
+            <NavItem key={item.label} {...item} />
+          ))}
+        </div>
+      </nav>
+
+      <div className="p-4 border-t border-border">
+        <div className="flex items-center gap-3 bg-bg-3/50 p-3 rounded-lg">
+          <div className="w-8 h-8 rounded-full bg-bg-4 flex items-center justify-center text-xs font-semibold text-accent-cyan font-mono shrink-0">
+            AC
           </div>
-          <div className="text-[0.75rem]">
-            Greg A.
-            <span className="block text-text-3 text-[0.6rem] font-mono">Platform Admin</span>
+          <div className="flex-1 overflow-hidden">
+            <p className="text-xs font-semibold truncate">Alex Chen</p>
+            <p className="text-[10px] text-text-3 font-mono">ADMIN_ROLE_01</p>
           </div>
+          <button className="text-text-3 hover:text-text-1">
+            <LogOut size={16} />
+          </button>
         </div>
       </div>
     </div>
@@ -135,7 +128,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     return (
       <>
         <div className="fixed inset-0 bg-black/50 z-[49]" onClick={onMobileClose} />
-        <aside className="fixed top-0 left-0 bottom-0 w-60 bg-bg-1 border-r border-border z-50 overflow-y-auto animate-[fadeIn_0.2s_ease]">
+        <aside className="fixed top-0 left-0 bottom-0 w-64 bg-bg-1 border-r border-border z-50 overflow-y-auto animate-[fadeIn_0.2s_ease]">
           <button
             onClick={onMobileClose}
             className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-text-2 z-10"
@@ -150,7 +143,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   }
 
   return (
-    <aside className="w-60 bg-bg-1 border-r border-border fixed top-0 left-0 bottom-0 z-50 overflow-y-auto">
+    <aside className="w-64 bg-bg-1 border-r border-border fixed top-0 left-0 bottom-0 z-50 overflow-y-auto">
       {content}
     </aside>
   );

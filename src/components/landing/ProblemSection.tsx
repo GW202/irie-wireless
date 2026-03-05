@@ -1,75 +1,76 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { PROBLEM_NODES, PROBLEM_ITEMS } from '@/lib/constants';
-import { sectionVariants, containerVariants, itemVariants } from '@/lib/animations';
+import { PROBLEM_ITEMS } from '@/lib/constants';
+import { containerVariants, itemVariants } from '@/lib/animations';
+
+const LEGACY_NODES = [
+  'Carrier APIs',
+  'Wholesale Platforms',
+  'BSS / Billing Systems',
+  'SIM Provisioning',
+];
 
 export default function ProblemSection() {
   return (
-    <section className="py-32 bg-bg-1 relative overflow-hidden" id="platform">
-      <div className="max-w-[1200px] mx-auto px-5 md:px-8">
+    <section className="py-24 px-6 border-y border-border bg-bg-1" id="platform">
+      <div className="max-w-7xl mx-auto">
         <motion.div
-          variants={sectionVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-        >
-          <div className="font-mono text-[0.8rem] uppercase tracking-[0.18em] text-accent-cyan mb-5 flex items-center gap-3 text-shadow-[0_0_20px_rgba(0,229,255,0.3)]">
-            <span className="w-8 h-0.5 bg-gradient-to-r from-accent-cyan to-accent-green rounded-sm" />
-            The Problem
-          </div>
-          <h2 className="text-[clamp(2.6rem,5.5vw,4rem)] font-bold tracking-[-0.035em] leading-[1.1] mb-6">
-            Telecom Infrastructure Was Never
-            <br />
-            Designed for <span className="gradient-text">Multi-Brand Scale</span>
-          </h2>
-          <p className="text-lg text-text-2 leading-relaxed max-w-[620px]">
-            Every new brand launch requires custom integrations across fragmented systems. Manual
-            workflows. Brittle connections. Months of engineering.
-          </p>
-        </motion.div>
-
-        <motion.div
-          className="grid grid-cols-1 lg:grid-cols-2 gap-16 mt-12 items-center"
+          className="grid lg:grid-cols-2 gap-16 items-center"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
         >
-          <motion.div className="flex flex-col gap-2 p-4 md:p-8" variants={itemVariants}>
-            {PROBLEM_NODES.map((node, i) => (
-              <div
-                key={node}
-                className="flex items-center gap-4 py-4 px-6 bg-bg-2 border border-border rounded-lg font-mono text-[0.95rem] text-text-2 relative transition-all duration-300"
-              >
-                <span className="w-2.5 h-2.5 rounded-full bg-accent-red shrink-0 shadow-[0_0_8px_rgba(255,68,68,0.4)]" />
-                {node}
-                {i % 2 === 0 && (
-                  <span
-                    className="absolute -right-7 top-1/2 w-7 h-px hidden lg:block"
-                    style={{
-                      background:
-                        'repeating-linear-gradient(90deg, #ff4444 0, #ff4444 4px, transparent 4px, transparent 8px)',
-                    }}
-                  />
-                )}
-              </div>
-            ))}
+          <motion.div variants={itemVariants}>
+            <div className="font-mono text-xs uppercase tracking-[0.2em] text-accent-cyan mb-4">
+              — The Problem
+            </div>
+            <h2 className="text-[clamp(2.2rem,4vw,3.2rem)] font-bold leading-[1.1] mb-6">
+              Telecom Infrastructure Was Never Designed for{' '}
+              <span className="gradient-text">Multi-Brand Scale</span>
+            </h2>
+            <p className="text-text-2 mb-8 leading-relaxed">
+              Every new brand launch requires custom integrations across fragmented systems.
+              Manual workflows. Brittle connections. Months of engineering for what should be
+              simple API calls.
+            </p>
+            <ul className="space-y-4">
+              {PROBLEM_ITEMS.slice(0, 2).map((item) => (
+                <li
+                  key={item.title}
+                  className="flex items-start gap-4 p-4 rounded-xl bg-bg-0 border border-border"
+                >
+                  <span className="text-accent-cyan text-xl mt-0.5 shrink-0">&#x26A0;</span>
+                  <div>
+                    <h4 className="font-bold text-text-1">{item.title}</h4>
+                    <p className="text-sm text-text-3">{item.description}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </motion.div>
 
-          <motion.div className="flex flex-col gap-5" variants={containerVariants}>
-            {PROBLEM_ITEMS.map((item) => (
-              <motion.div
-                key={item.title}
-                className="flex items-start gap-4 py-4 px-5 border-l-2 border-border transition-colors duration-300 hover:border-l-accent-red"
-                variants={itemVariants}
-              >
-                <div>
-                  <h4 className="text-[1.05rem] font-semibold mb-1.5">{item.title}</h4>
-                  <p className="text-[0.95rem] text-text-2 leading-relaxed">{item.description}</p>
+          <motion.div className="relative" variants={itemVariants}>
+            <div className="bg-bg-0 border border-border rounded-2xl p-8 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-border pb-4 mb-4">
+                <span className="text-xs font-mono text-text-3">LEGACY_NODES.JSON</span>
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-accent-red/20" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-accent-amber/20" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-accent-green/20" />
                 </div>
-              </motion.div>
-            ))}
+              </div>
+              {LEGACY_NODES.map((node) => (
+                <div
+                  key={node}
+                  className="p-4 rounded border border-border bg-white/5 flex items-center justify-between"
+                >
+                  <span className="text-sm font-mono text-text-2">{node}</span>
+                  <span className="text-[10px] text-accent-red/50 uppercase">Fragmented</span>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </motion.div>
       </div>
