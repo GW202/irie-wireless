@@ -19,8 +19,8 @@ export default function FutureState() {
             — Roadmap
           </div>
           <h2 className="text-[clamp(2.2rem,4vw,3.2rem)] font-bold leading-[1.1]">
-            The Future of Telecom is{' '}
-            <span className="gradient-text">Programmable</span>
+            The Long-Term{' '}
+            <span className="gradient-text">Vision Roadmap</span>
           </h2>
         </motion.div>
 

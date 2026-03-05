@@ -19,108 +19,108 @@ export const PROBLEM_NODES = [
 
 export const PROBLEM_ITEMS = [
   {
-    title: 'Disconnected APIs',
-    description: 'Every carrier and vendor speaks a different language. No unified interface exists.',
+    title: 'Direct BSS Coupling',
+    description: 'Brands integrate directly with Telgoo5 or Netcracker. Switching providers means rewriting everything.',
   },
   {
-    title: 'Manual Provisioning',
-    description: 'Subscriber activation, port-ins, and plan changes require human intervention at scale.',
+    title: 'No Canonical Data Model',
+    description: 'Every BSS represents subscribers, billing, and provisioning differently. No standard exists across providers.',
   },
   {
     title: 'Vendor Lock-In',
-    description: 'Switching BSS or adding a carrier means months of re-integration work.',
+    description: 'Providers dictate how you build. Switching BSS means months of re-integration — not an adapter swap.',
   },
   {
-    title: 'Slow Brand Deployment',
-    description: 'Launching a new wireless brand takes 6\u201312 months of custom plumbing.',
+    title: 'Integration, Not Configuration',
+    description: 'Launching a new MVNO should be a tenant configuration — not a 6\u201312 month custom integration build.',
   },
 ];
 
 export const API_SOURCES = [
+  'Telgoo5 BSS',
+  'Netcracker BSS',
   'Carrier APIs',
-  'Wholesale APIs',
-  'BSS / OCS',
-  'SIM / eSIM',
-  'KYC / Fraud',
+  'SIM / eSIM Provisioning',
+  'Billing / OCS',
 ];
 
 export const BRAND_OUTPUTS = [
-  'Brand Alpha',
-  'Brand Beta',
-  'Brand Gamma',
-  'Brand Delta',
-  'Brand N+1',
+  'MVNO Alpha',
+  'MVNO Beta',
+  'Sub-MVNO Gamma',
+  'Digital Carrier Delta',
+  'Tenant N+1',
 ];
 
 export const STEPS = [
   {
-    number: 'Step 01 \u2014 Integrate',
-    title: 'Connect',
-    description: 'We plug into your carrier and wholesale APIs. No rip-and-replace \u2014 Irie layers on top of existing infrastructure.',
+    number: 'Step 01 \u2014 Abstract',
+    title: 'Connect Providers',
+    description: 'We abstract Telgoo5, Netcracker, and any future BSS into provider adapters. No rip-and-replace \u2014 Irie layers on top.',
   },
   {
     number: 'Step 02 \u2014 Normalize',
-    title: 'Standardize',
-    description: 'We normalize provisioning, activation, and lifecycle workflows into a single unified API surface.',
+    title: 'Canonical Model',
+    description: 'Provider payloads are transformed and normalized into a canonical telecom domain model \u2014 a stable, versioned API.',
   },
   {
-    number: 'Step 03 \u2014 Orchestrate',
-    title: 'Automate',
-    description: 'Subscriber creation, activation, billing, port-ins, and analytics \u2014 fully automated through workflow intelligence.',
+    number: 'Step 03 \u2014 Configure',
+    title: 'Tenant Routing',
+    description: 'Brands integrate with Irie \u2014 not with providers. Multi-tenant routing, per-brand configuration, normalized data.',
   },
   {
-    number: 'Step 04 \u2014 Scale',
-    title: 'Launch',
-    description: 'Deploy and manage unlimited wireless brands from a unified control plane. Weeks, not months.',
+    number: 'Step 04 \u2014 Deploy',
+    title: 'Launch MVNOs',
+    description: 'Adding a new MVNO becomes a configuration-level change. Switching providers becomes an adapter swap. That\u2019s leverage.',
   },
 ];
 
 export const CAPABILITIES = [
   {
     icon: '\u26a1',
-    title: 'API Orchestration Layer',
-    description: 'Carrier provisioning, wholesale integration, BSS automation, and port-in workflows \u2014 unified under one API surface.',
+    title: 'BSS Abstraction Layer',
+    description: 'Abstract Telgoo5, Netcracker, and any future MVNE/MNO/BSS into a canonical domain model with stable versioned APIs.',
   },
   {
     icon: '\ud83d\udd04',
-    title: 'Multi-Brand Enablement',
-    description: 'Brand replication engine with SKU automation, plan catalog orchestration, and subscriber lifecycle management.',
+    title: 'Transformation Engine',
+    description: 'Provider Payload \u2192 Transform \u2192 Normalize \u2192 Store Canonical \u2192 Serve Stable API. Telecom middleware, built right.',
   },
   {
     icon: '\ud83d\udd13',
-    title: 'Vendor Abstraction',
-    description: 'Swap BSS vendors or add carriers without breaking workflows. Eliminate single-vendor lock-in permanently.',
+    title: 'Provider-Agnostic',
+    description: 'Switching Telgoo \u2192 Netcracker is an adapter-level change. Not a frontend rewrite. Eliminate vendor lock-in permanently.',
   },
   {
     icon: '\ud83d\udcca',
-    title: 'Intelligence Layer',
-    description: 'Cross-brand analytics, usage modeling, revenue visibility, and activation performance metrics in real time.',
+    title: 'Multi-Tenant Platform',
+    description: 'Tenant-based routing, per-brand provider configuration, and normalized data models. Infrastructure for multiple MVNOs.',
   },
   {
     icon: '\ud83d\udee1\ufe0f',
-    title: 'Secure Integration',
-    description: 'Credential vaulting, API throttling controls, and role-based orchestration permissions across all endpoints.',
+    title: 'Canonical Data Ownership',
+    description: 'You control how messaging, provisioning, subscribers, and billing are represented. Providers adapt to you.',
   },
   {
     icon: '\ud83c\udf10',
-    title: 'Infrastructure Agnostic',
-    description: 'Works across T-Mobile, AT&T, and future carrier partnerships. Designed for multi-carrier from day one.',
+    title: 'Rapid MVNO Deployment',
+    description: 'Launch brands faster. Reduce integration cost. New MVNO deployment is configuration \u2014 not a new integration build.',
   },
 ];
 
 export const METRICS = [
-  { value: 'Multi', label: 'Carrier Capable' },
-  { value: 'API', label: 'First Architecture' },
-  { value: '10\u00d7', label: 'Brand Launch Speed' },
+  { value: 'Multi', label: 'Tenant Architecture' },
+  { value: 'Adapter', label: 'Level Provider Swap' },
+  { value: 'Config', label: 'Level MVNO Launch' },
   { value: 'Zero', label: 'Vendor Lock-In' },
 ];
 
 export const FUTURE_ITEMS = [
-  { title: 'Embedded', description: 'Wireless connectivity will be embedded into every digital experience.' },
-  { title: 'Abstracted', description: 'Infrastructure will be invisible. Only the experience will matter.' },
-  { title: 'Accelerated', description: 'Brands will deploy wireless programs in weeks, not months.' },
-  { title: 'Exposed', description: 'Carriers will open their networks through programmable APIs.' },
-  { title: 'Orchestrated', description: 'The orchestration layer will define who scales \u2014 and who stalls.' },
+  { title: 'Phase 1: Normalize', description: 'Messaging normalization, Telgoo5 integration, multi-tenant routing.' },
+  { title: 'Phase 2: Lifecycle', description: 'Subscriber lifecycle, number provisioning, plan management, billing abstraction.' },
+  { title: 'Phase 3: Intelligence', description: 'Usage data normalization, reconciliation engine, cross-provider failover.' },
+  { title: 'Phase 4: Marketplace', description: 'API marketplace, brand self-service onboarding, global carrier integrations.' },
+  { title: 'Phase 5: Platform', description: 'White-label telecom middleware. MVNO infrastructure as a service.' },
 ];
 
 export const ORGANIZATION_TYPES = [
