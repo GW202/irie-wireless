@@ -5,8 +5,7 @@ import { StatCardData, CarrierData, BrandData, ActivityItem, WorkflowNode, PlanD
 export const NAV_LINKS = [
   { label: 'Platform', href: '#platform' },
   { label: 'How It Works', href: '#how' },
-  { label: 'Capabilities', href: '#capabilities' },
-  { label: 'Vision', href: '#vision' },
+  { label: 'Roadmap', href: '#roadmap' },
 ];
 
 export const PROBLEM_NODES = [

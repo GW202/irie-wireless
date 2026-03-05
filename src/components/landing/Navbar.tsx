@@ -43,9 +43,9 @@ export default function Navbar({ onContactClick }: NavbarProps) {
           ))}
           <button
             onClick={onContactClick}
-            className="px-5 py-2 bg-transparent border border-accent-cyan text-accent-cyan rounded-md font-medium text-[0.85rem] transition-all duration-300 hover:bg-accent-cyan/10 hover:shadow-[0_0_20px_rgba(0,229,255,0.15)]"
+            className="px-5 py-2.5 bg-accent-cyan text-bg-0 rounded-full font-bold text-[0.85rem] transition-all duration-300 hover:opacity-90"
           >
-            Partner With Irie
+            Partner With Us
           </button>
         </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Settings, Menu, Search } from 'lucide-react';
+import { Bell, Menu, Search, Terminal } from 'lucide-react';
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -8,8 +8,8 @@ interface TopBarProps {
 
 export default function TopBar({ onMenuClick }: TopBarProps) {
   return (
-    <div className="py-3.5 px-7 border-b border-border flex items-center justify-between bg-[rgba(10,14,20,0.85)] backdrop-blur-[12px] sticky top-0 z-40">
-      <div className="flex items-center gap-6">
+    <div className="sticky top-0 z-40 bg-[rgba(5,7,10,0.8)] backdrop-blur-md border-b border-border px-8 py-4 flex items-center justify-between max-sm:px-4">
+      <div className="flex items-center gap-4 flex-1">
         <button
           className="md:hidden w-8 h-8 flex items-center justify-center text-text-2"
           onClick={onMenuClick}
@@ -17,26 +17,29 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
         >
           <Menu size={18} />
         </button>
-        <div className="text-base font-semibold tracking-tight">Control Plane</div>
-        <div className="font-mono text-[0.6rem] px-2 py-0.5 rounded bg-accent-green/10 text-accent-green uppercase tracking-[0.08em]">
-          ● Production
+        <div className="relative w-full max-w-md">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-3" />
+          <input
+            className="w-full bg-white/5 border-none rounded-full py-2 pl-10 pr-4 text-sm outline-none focus:ring-1 focus:ring-accent-cyan/50 placeholder:text-text-3 text-text-1"
+            placeholder="Search canonical objects, tenants, or adapters..."
+            type="text"
+          />
         </div>
       </div>
-      <div className="flex items-center gap-4">
-        <input
-          className="hidden sm:block py-1.5 px-3 bg-bg-2 border border-border rounded-md text-text-2 text-[0.78rem] font-display outline-none w-[200px] transition-colors placeholder:text-text-3 focus:border-accent-cyan"
-          placeholder="Search subscribers, brands..."
-          type="text"
-        />
-        <button className="sm:hidden w-8 h-8 rounded-md border border-border bg-bg-2 flex items-center justify-center cursor-pointer transition-all hover:border-border-light hover:bg-bg-3">
-          <Search size={15} className="text-text-2" />
-        </button>
-        <div className="relative w-8 h-8 rounded-md border border-border bg-bg-2 flex items-center justify-center cursor-pointer transition-all hover:border-border-light hover:bg-bg-3">
-          <Bell size={15} className="text-text-2" />
-          <span className="absolute top-[5px] right-[5px] w-1.5 h-1.5 rounded-full bg-accent-red" />
+      <div className="flex items-center gap-6">
+        <div className="hidden sm:flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-accent-green animate-pulse" />
+          <span className="text-xs font-mono uppercase tracking-wider text-text-3">
+            System Healthy
+          </span>
         </div>
-        <div className="w-8 h-8 rounded-md border border-border bg-bg-2 flex items-center justify-center cursor-pointer transition-all hover:border-border-light hover:bg-bg-3">
-          <Settings size={15} className="text-text-2" />
+        <div className="hidden sm:block h-6 w-px bg-border" />
+        <button className="relative text-text-3 hover:text-accent-cyan">
+          <Bell size={20} />
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-accent-red rounded-full border-2 border-bg-0" />
+        </button>
+        <div className="h-8 w-8 rounded bg-accent-cyan/10 flex items-center justify-center text-accent-cyan">
+          <Terminal size={18} />
         </div>
       </div>
     </div>

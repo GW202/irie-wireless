@@ -20,16 +20,8 @@
   --color-border-DEFAULT: #1a2332;
   --color-border-light: #243040;
 
-  --font-display: 'Sora', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-}
-
-@font-face {
-  font-family: 'Sora';
-  font-style: normal;
-  font-weight: 300 700;
-  font-display: swap;
-  src: url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+  --font-display: 'Sora', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
 html {
@@ -90,4 +82,37 @@ body {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* Dashboard Styles */
+.glow-border {
+  position: relative;
+}
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(45deg, transparent, rgba(0, 229, 255, 0.1), transparent);
+  z-index: -1;
+  border-radius: inherit;
+}
+
+.scanline {
+  width: 100%;
+  height: 100px;
+  z-index: 10;
+  background: linear-gradient(0deg, rgba(0, 229, 255, 0.05) 0%, rgba(0, 229, 255, 0) 100%);
+  opacity: 0.1;
+  position: absolute;
+  bottom: 100%;
+  animation: scan 8s linear infinite;
+}
+
+@keyframes scan {
+  to { bottom: -100px; }
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
