@@ -1,7 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { SignJWT } from 'jose';
 
 const CARRIER_PULSE_BACKEND = process.env.CARRIER_PULSE_API_URL || 'http://localhost:8000';
 const CARRIER_PULSE_SERVICE_KEY = process.env.CARRIER_PULSE_SERVICE_KEY || '';
+
+// Cache the JWT so we don't sign on every request (reuse for 50 min of 60 min expiry)
+let cachedToken: { jwt: string; expiresAt: number } | null = null;
+
+async function getServiceJWT(): Promise<string> {
+  const now = Date.now();
+  if (cachedToken && cachedToken.expiresAt > now) {
+    return cachedToken.jwt;
+  }
+
+  const secret = new TextEncoder().encode(CARRIER_PULSE_SERVICE_KEY);
+  const jwt = await new SignJWT({
+    sub: 'irie-platform-service',
+    role: 'service',
+    iss: 'irie-wireless',
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('1h')
+    .sign(secret);
+
+  cachedToken = { jwt, expiresAt: now + 50 * 60 * 1000 };
+  return jwt;
+}
 
 async function proxyRequest(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
@@ -16,17 +41,18 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
     'Content-Type': 'application/json',
   };
 
-  // Forward client auth header if present, otherwise use service key
+  // Forward client auth header if present, otherwise generate a service JWT
   const authHeader = request.headers.get('Authorization');
   if (authHeader) {
     headers['Authorization'] = authHeader;
   } else if (CARRIER_PULSE_SERVICE_KEY) {
-    // Service-to-service auth — send service key as Bearer token
-    // The Python backend validates Authorization header (JWT-based auth)
-    headers['Authorization'] = `Bearer ${CARRIER_PULSE_SERVICE_KEY}`;
+    // Service-to-service auth — sign a JWT with the shared secret
+    // The Python backend validates JWT tokens signed with SERVICE_KEY
+    const serviceJwt = await getServiceJWT();
+    headers['Authorization'] = `Bearer ${serviceJwt}`;
   }
 
-  // Also send as X-Service-Key for backends that check this header
+  // Also send raw key as X-Service-Key for backends that check this header
   if (CARRIER_PULSE_SERVICE_KEY) {
     headers['X-Service-Key'] = CARRIER_PULSE_SERVICE_KEY;
   }
