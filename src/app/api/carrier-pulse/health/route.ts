@@ -4,50 +4,65 @@ const CARRIER_PULSE_BACKEND = process.env.CARRIER_PULSE_API_URL || 'http://local
 const CARRIER_PULSE_SERVICE_KEY = process.env.CARRIER_PULSE_SERVICE_KEY || '';
 
 export async function GET() {
-  const checks: Record<string, unknown> = {
+  const results: Record<string, unknown> = {
     timestamp: new Date().toISOString(),
-    vercel: {
+    config: {
       CARRIER_PULSE_API_URL_set: !!process.env.CARRIER_PULSE_API_URL,
       CARRIER_PULSE_API_URL_value: CARRIER_PULSE_BACKEND,
       CARRIER_PULSE_SERVICE_KEY_set: !!process.env.CARRIER_PULSE_SERVICE_KEY,
       CARRIER_PULSE_SERVICE_KEY_length: CARRIER_PULSE_SERVICE_KEY.length,
     },
-    backend: {
-      reachable: false,
-      status: null as number | null,
-      auth_accepted: false,
-      error: null as string | null,
-    },
   };
 
-  // Test connectivity + auth against Railway backend
+  // Test 1: No auth (baseline — expect 401)
   try {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (CARRIER_PULSE_SERVICE_KEY) {
-      headers['X-Service-Key'] = CARRIER_PULSE_SERVICE_KEY;
-    }
-
-    const response = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
-      method: 'GET',
-      headers,
+    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
+      headers: { 'Content-Type': 'application/json' },
     });
-
-    checks.backend = {
-      reachable: true,
-      status: response.status,
-      auth_accepted: response.ok,
-      error: response.ok ? null : `${response.status} ${response.statusText}`,
-    };
+    results.test_no_auth = { status: res.status, ok: res.ok };
   } catch (err) {
-    checks.backend = {
-      reachable: false,
-      status: null,
-      auth_accepted: false,
-      error: err instanceof Error ? err.message : 'Unknown error',
-    };
+    results.test_no_auth = { error: err instanceof Error ? err.message : 'Failed' };
   }
 
-  return NextResponse.json(checks);
+  // Test 2: X-Service-Key header
+  try {
+    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Service-Key': CARRIER_PULSE_SERVICE_KEY,
+      },
+    });
+    results.test_x_service_key = { status: res.status, ok: res.ok };
+  } catch (err) {
+    results.test_x_service_key = { error: err instanceof Error ? err.message : 'Failed' };
+  }
+
+  // Test 3: Bearer token with service key
+  try {
+    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${CARRIER_PULSE_SERVICE_KEY}`,
+      },
+    });
+    results.test_bearer_token = { status: res.status, ok: res.ok };
+  } catch (err) {
+    results.test_bearer_token = { error: err instanceof Error ? err.message : 'Failed' };
+  }
+
+  // Test 4: Both headers
+  try {
+    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${CARRIER_PULSE_SERVICE_KEY}`,
+        'X-Service-Key': CARRIER_PULSE_SERVICE_KEY,
+      },
+    });
+    results.test_both_headers = { status: res.status, ok: res.ok };
+  } catch (err) {
+    results.test_both_headers = { error: err instanceof Error ? err.message : 'Failed' };
+  }
+
+  return NextResponse.json(results);
 }

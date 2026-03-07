@@ -16,15 +16,19 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
     'Content-Type': 'application/json',
   };
 
-  // Service-to-service auth — backend trusts this key
-  if (CARRIER_PULSE_SERVICE_KEY) {
-    headers['X-Service-Key'] = CARRIER_PULSE_SERVICE_KEY;
-  }
-
-  // Forward auth header if present (fallback for direct JWT auth)
+  // Forward client auth header if present, otherwise use service key
   const authHeader = request.headers.get('Authorization');
   if (authHeader) {
     headers['Authorization'] = authHeader;
+  } else if (CARRIER_PULSE_SERVICE_KEY) {
+    // Service-to-service auth — send service key as Bearer token
+    // The Python backend validates Authorization header (JWT-based auth)
+    headers['Authorization'] = `Bearer ${CARRIER_PULSE_SERVICE_KEY}`;
+  }
+
+  // Also send as X-Service-Key for backends that check this header
+  if (CARRIER_PULSE_SERVICE_KEY) {
+    headers['X-Service-Key'] = CARRIER_PULSE_SERVICE_KEY;
   }
 
   // Log auth diagnostic info on non-200 responses
