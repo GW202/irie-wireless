@@ -27,6 +27,10 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
     headers['Authorization'] = authHeader;
   }
 
+  // Log auth diagnostic info on non-200 responses
+  const hasServiceKey = !!CARRIER_PULSE_SERVICE_KEY;
+  const hasAuthHeader = !!authHeader;
+
   const fetchOptions: RequestInit = {
     method: request.method,
     headers,
@@ -45,6 +49,19 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
     const response = await fetch(url.toString(), fetchOptions);
     const responseBody = await response.text();
 
+    if (!response.ok) {
+      console.error(
+        `[CarrierPulse] ${request.method} ${targetPath} → ${response.status}`,
+        {
+          backendUrl: CARRIER_PULSE_BACKEND,
+          hasServiceKey,
+          serviceKeyLength: CARRIER_PULSE_SERVICE_KEY.length,
+          hasAuthHeader,
+          responseBody: responseBody.substring(0, 200),
+        }
+      );
+    }
+
     return new NextResponse(responseBody || null, {
       status: response.status,
       headers: {
@@ -52,7 +69,7 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
       },
     });
   } catch (error) {
-    console.error('CarrierPulse proxy error:', error);
+    console.error('[CarrierPulse] Proxy connection error:', error);
     return NextResponse.json(
       { error: 'CarrierPulse backend unavailable' },
       { status: 502 }
