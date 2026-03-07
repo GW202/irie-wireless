@@ -6,62 +6,52 @@ const CARRIER_PULSE_SERVICE_KEY = process.env.CARRIER_PULSE_SERVICE_KEY || '';
 export async function GET() {
   const results: Record<string, unknown> = {
     timestamp: new Date().toISOString(),
-    config: {
-      CARRIER_PULSE_API_URL_set: !!process.env.CARRIER_PULSE_API_URL,
-      CARRIER_PULSE_API_URL_value: CARRIER_PULSE_BACKEND,
-      CARRIER_PULSE_SERVICE_KEY_set: !!process.env.CARRIER_PULSE_SERVICE_KEY,
-      CARRIER_PULSE_SERVICE_KEY_length: CARRIER_PULSE_SERVICE_KEY.length,
-    },
   };
 
-  // Test 1: No auth (baseline — expect 401)
+  // Fetch the full OpenAPI spec to understand auth
   try {
-    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
+    const res = await fetch(`${CARRIER_PULSE_BACKEND}/openapi.json`);
+    const spec = await res.json();
+
+    // Extract auth-related info
+    results.security_schemes = spec.components?.securitySchemes || 'none';
+    results.login_schema = spec.components?.schemas?.LoginRequest || 'not found';
+    results.login_response = spec.components?.schemas?.TokenResponse ||
+      spec.components?.schemas?.LoginResponse ||
+      spec.components?.schemas?.Token || 'not found';
+
+    // Get auth-related paths
+    const authPaths: Record<string, unknown> = {};
+    for (const [path, methods] of Object.entries(spec.paths || {})) {
+      if (path.includes('auth') || path.includes('token') || path.includes('login')) {
+        authPaths[path] = methods;
+      }
+    }
+    results.auth_endpoints = authPaths;
+
+    // Get security requirements on /api/brands
+    results.brands_endpoint = spec.paths?.['/api/brands'] || 'not found';
+
+    // List all schemas for reference
+    results.all_schema_names = Object.keys(spec.components?.schemas || {});
+  } catch (err) {
+    results.openapi_error = err instanceof Error ? err.message : 'Failed';
+  }
+
+  // Try login with service key as password
+  try {
+    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/auth/login`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'service@irie-wireless.com',
+        password: CARRIER_PULSE_SERVICE_KEY,
+      }),
     });
-    results.test_no_auth = { status: res.status, ok: res.ok };
+    const body = await res.text();
+    results.login_service_account = { status: res.status, body: body.substring(0, 300) };
   } catch (err) {
-    results.test_no_auth = { error: err instanceof Error ? err.message : 'Failed' };
-  }
-
-  // Test 2: X-Service-Key header
-  try {
-    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Service-Key': CARRIER_PULSE_SERVICE_KEY,
-      },
-    });
-    results.test_x_service_key = { status: res.status, ok: res.ok };
-  } catch (err) {
-    results.test_x_service_key = { error: err instanceof Error ? err.message : 'Failed' };
-  }
-
-  // Test 3: Bearer token with service key
-  try {
-    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${CARRIER_PULSE_SERVICE_KEY}`,
-      },
-    });
-    results.test_bearer_token = { status: res.status, ok: res.ok };
-  } catch (err) {
-    results.test_bearer_token = { error: err instanceof Error ? err.message : 'Failed' };
-  }
-
-  // Test 4: Both headers
-  try {
-    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${CARRIER_PULSE_SERVICE_KEY}`,
-        'X-Service-Key': CARRIER_PULSE_SERVICE_KEY,
-      },
-    });
-    results.test_both_headers = { status: res.status, ok: res.ok };
-  } catch (err) {
-    results.test_both_headers = { error: err instanceof Error ? err.message : 'Failed' };
+    results.login_service_account = { error: err instanceof Error ? err.message : 'Failed' };
   }
 
   return NextResponse.json(results);
