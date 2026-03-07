@@ -1,57 +1,59 @@
 import { NextResponse } from 'next/server';
 
 const CARRIER_PULSE_BACKEND = process.env.CARRIER_PULSE_API_URL || 'http://localhost:8000';
-const CARRIER_PULSE_SERVICE_KEY = process.env.CARRIER_PULSE_SERVICE_KEY || '';
+const CARRIER_PULSE_SERVICE_EMAIL = process.env.CARRIER_PULSE_SERVICE_EMAIL || '';
+const CARRIER_PULSE_SERVICE_PASSWORD = process.env.CARRIER_PULSE_SERVICE_PASSWORD || '';
 
 export async function GET() {
   const results: Record<string, unknown> = {
     timestamp: new Date().toISOString(),
+    config: {
+      backend_url: CARRIER_PULSE_BACKEND,
+      service_email_set: !!CARRIER_PULSE_SERVICE_EMAIL,
+      service_email_value: CARRIER_PULSE_SERVICE_EMAIL || '(not set)',
+      service_password_set: !!CARRIER_PULSE_SERVICE_PASSWORD,
+      service_password_length: CARRIER_PULSE_SERVICE_PASSWORD.length,
+    },
   };
 
-  // Fetch the full OpenAPI spec to understand auth
+  // Step 1: Test login
+  let accessToken: string | null = null;
   try {
-    const res = await fetch(`${CARRIER_PULSE_BACKEND}/openapi.json`);
-    const spec = await res.json();
-
-    // Extract auth-related info
-    results.security_schemes = spec.components?.securitySchemes || 'none';
-    results.login_schema = spec.components?.schemas?.LoginRequest || 'not found';
-    results.login_response = spec.components?.schemas?.TokenResponse ||
-      spec.components?.schemas?.LoginResponse ||
-      spec.components?.schemas?.Token || 'not found';
-
-    // Get auth-related paths
-    const authPaths: Record<string, unknown> = {};
-    for (const [path, methods] of Object.entries(spec.paths || {})) {
-      if (path.includes('auth') || path.includes('token') || path.includes('login')) {
-        authPaths[path] = methods;
-      }
-    }
-    results.auth_endpoints = authPaths;
-
-    // Get security requirements on /api/brands
-    results.brands_endpoint = spec.paths?.['/api/brands'] || 'not found';
-
-    // List all schemas for reference
-    results.all_schema_names = Object.keys(spec.components?.schemas || {});
-  } catch (err) {
-    results.openapi_error = err instanceof Error ? err.message : 'Failed';
-  }
-
-  // Try login with service key as password
-  try {
-    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/auth/login`, {
+    const loginRes = await fetch(`${CARRIER_PULSE_BACKEND}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email: 'service@irie-wireless.com',
-        password: CARRIER_PULSE_SERVICE_KEY,
+        email: CARRIER_PULSE_SERVICE_EMAIL,
+        password: CARRIER_PULSE_SERVICE_PASSWORD,
       }),
     });
-    const body = await res.text();
-    results.login_service_account = { status: res.status, body: body.substring(0, 300) };
+    const loginBody = await loginRes.text();
+    results.login = { status: loginRes.status, body: loginBody.substring(0, 300) };
+
+    if (loginRes.ok) {
+      const data = JSON.parse(loginBody);
+      accessToken = data.access_token;
+    }
   } catch (err) {
-    results.login_service_account = { error: err instanceof Error ? err.message : 'Failed' };
+    results.login = { error: err instanceof Error ? err.message : 'Failed' };
+  }
+
+  // Step 2: Test /api/brands with the token
+  if (accessToken) {
+    try {
+      const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      const body = await res.text();
+      results.brands_with_token = { status: res.status, body: body.substring(0, 300) };
+    } catch (err) {
+      results.brands_with_token = { error: err instanceof Error ? err.message : 'Failed' };
+    }
+  } else {
+    results.brands_with_token = { skipped: 'No access token from login' };
   }
 
   return NextResponse.json(results);
