@@ -1,31 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SignJWT } from 'jose';
 
 const CARRIER_PULSE_BACKEND = process.env.CARRIER_PULSE_API_URL || 'http://localhost:8000';
-const CARRIER_PULSE_SERVICE_KEY = process.env.CARRIER_PULSE_SERVICE_KEY || '';
+const CARRIER_PULSE_SERVICE_EMAIL = process.env.CARRIER_PULSE_SERVICE_EMAIL || '';
+const CARRIER_PULSE_SERVICE_PASSWORD = process.env.CARRIER_PULSE_SERVICE_PASSWORD || '';
 
-// Cache the JWT so we don't sign on every request (reuse for 50 min of 60 min expiry)
-let cachedToken: { jwt: string; expiresAt: number } | null = null;
+// Cache the access token from OAuth2 login
+let cachedToken: { token: string; expiresAt: number } | null = null;
 
-async function getServiceJWT(): Promise<string> {
-  const now = Date.now();
-  if (cachedToken && cachedToken.expiresAt > now) {
-    return cachedToken.jwt;
+async function getAccessToken(): Promise<string | null> {
+  if (!CARRIER_PULSE_SERVICE_EMAIL || !CARRIER_PULSE_SERVICE_PASSWORD) {
+    return null;
   }
 
-  const secret = new TextEncoder().encode(CARRIER_PULSE_SERVICE_KEY);
-  const jwt = await new SignJWT({
-    sub: 'irie-platform-service',
-    role: 'service',
-    iss: 'irie-wireless',
-  })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('1h')
-    .sign(secret);
+  const now = Date.now();
+  if (cachedToken && cachedToken.expiresAt > now) {
+    return cachedToken.token;
+  }
 
-  cachedToken = { jwt, expiresAt: now + 50 * 60 * 1000 };
-  return jwt;
+  try {
+    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: CARRIER_PULSE_SERVICE_EMAIL,
+        password: CARRIER_PULSE_SERVICE_PASSWORD,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error('[CarrierPulse] Service login failed:', res.status, await res.text());
+      return null;
+    }
+
+    const data = await res.json();
+    const token = data.access_token;
+
+    // Cache for 50 minutes (assume ~1h expiry)
+    cachedToken = { token, expiresAt: now + 50 * 60 * 1000 };
+    return token;
+  } catch (err) {
+    console.error('[CarrierPulse] Service login error:', err);
+    return null;
+  }
 }
 
 async function proxyRequest(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
@@ -41,25 +57,16 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
     'Content-Type': 'application/json',
   };
 
-  // Forward client auth header if present, otherwise generate a service JWT
+  // Forward client auth header if present, otherwise login as service account
   const authHeader = request.headers.get('Authorization');
   if (authHeader) {
     headers['Authorization'] = authHeader;
-  } else if (CARRIER_PULSE_SERVICE_KEY) {
-    // Service-to-service auth — sign a JWT with the shared secret
-    // The Python backend validates JWT tokens signed with SERVICE_KEY
-    const serviceJwt = await getServiceJWT();
-    headers['Authorization'] = `Bearer ${serviceJwt}`;
+  } else {
+    const token = await getAccessToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
   }
-
-  // Also send raw key as X-Service-Key for backends that check this header
-  if (CARRIER_PULSE_SERVICE_KEY) {
-    headers['X-Service-Key'] = CARRIER_PULSE_SERVICE_KEY;
-  }
-
-  // Log auth diagnostic info on non-200 responses
-  const hasServiceKey = !!CARRIER_PULSE_SERVICE_KEY;
-  const hasAuthHeader = !!authHeader;
 
   const fetchOptions: RequestInit = {
     method: request.method,
@@ -79,16 +86,27 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
     const response = await fetch(url.toString(), fetchOptions);
     const responseBody = await response.text();
 
+    // If we get 401, token may have expired — clear cache and retry once
+    if (response.status === 401 && !authHeader && cachedToken) {
+      cachedToken = null;
+      const freshToken = await getAccessToken();
+      if (freshToken) {
+        headers['Authorization'] = `Bearer ${freshToken}`;
+        const retry = await fetch(url.toString(), { ...fetchOptions, headers });
+        const retryBody = await retry.text();
+        return new NextResponse(retryBody || null, {
+          status: retry.status,
+          headers: {
+            'Content-Type': retry.headers.get('Content-Type') || 'application/json',
+          },
+        });
+      }
+    }
+
     if (!response.ok) {
       console.error(
         `[CarrierPulse] ${request.method} ${targetPath} → ${response.status}`,
-        {
-          backendUrl: CARRIER_PULSE_BACKEND,
-          hasServiceKey,
-          serviceKeyLength: CARRIER_PULSE_SERVICE_KEY.length,
-          hasAuthHeader,
-          responseBody: responseBody.substring(0, 200),
-        }
+        { responseBody: responseBody.substring(0, 200) }
       );
     }
 
