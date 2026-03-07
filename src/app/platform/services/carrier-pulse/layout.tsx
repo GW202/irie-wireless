@@ -9,6 +9,8 @@ import {
   BookOpen,
   TrendingUp,
   Target,
+  Users,
+  Settings,
   Clock,
 } from 'lucide-react';
 import RunAgentButton from '@/components/carrier-pulse/RunAgentButton';
@@ -19,6 +21,8 @@ const CP_TABS = [
   { href: '/platform/services/carrier-pulse/briefs', label: 'Briefs', icon: BookOpen },
   { href: '/platform/services/carrier-pulse/trends', label: 'Trends', icon: TrendingUp },
   { href: '/platform/services/carrier-pulse/actions', label: 'Actions', icon: Target },
+  { href: '/platform/services/carrier-pulse/leads', label: 'Leads', icon: Users },
+  { href: '/platform/services/carrier-pulse/settings', label: 'Settings', icon: Settings },
 ];
 
 export default function CarrierPulseLayout({ children }: { children: React.ReactNode }) {

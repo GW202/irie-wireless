@@ -53,3 +53,13 @@ export const ACTION_PRIORITY_COLORS: Record<string, string> = {
   medium: '#f59e0b',
   low: '#6b7280',
 };
+
+export const LEAD_STATUSES: string[] = ['new', 'contacted', 'qualified', 'converted', 'dismissed'];
+
+export const LEAD_STATUS_COLORS: Record<string, string> = {
+  new: '#3b82f6',
+  contacted: '#f59e0b',
+  qualified: '#8b5cf6',
+  converted: '#10b981',
+  dismissed: '#6b7280',
+};
