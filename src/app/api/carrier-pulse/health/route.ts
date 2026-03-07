@@ -4,100 +4,75 @@ import { SignJWT } from 'jose';
 const CARRIER_PULSE_BACKEND = process.env.CARRIER_PULSE_API_URL || 'http://localhost:8000';
 const CARRIER_PULSE_SERVICE_KEY = process.env.CARRIER_PULSE_SERVICE_KEY || '';
 
+async function probe(url: string, options?: RequestInit) {
+  try {
+    const res = await fetch(url, { ...options, redirect: 'manual' });
+    const body = await res.text();
+    return { status: res.status, body: body.substring(0, 300) };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Failed' };
+  }
+}
+
 export async function GET() {
+  const base = CARRIER_PULSE_BACKEND;
   const results: Record<string, unknown> = {
     timestamp: new Date().toISOString(),
-    config: {
-      CARRIER_PULSE_API_URL: CARRIER_PULSE_BACKEND,
-      CARRIER_PULSE_SERVICE_KEY_set: !!process.env.CARRIER_PULSE_SERVICE_KEY,
-      CARRIER_PULSE_SERVICE_KEY_length: CARRIER_PULSE_SERVICE_KEY.length,
-    },
+    backend_url: base,
+    service_key_length: CARRIER_PULSE_SERVICE_KEY.length,
   };
 
-  // Test 1: No auth (baseline — expect 401)
-  try {
-    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
+  // Probe common auth/discovery endpoints
+  const endpoints = [
+    '/api/health',
+    '/api/auth/login',
+    '/api/auth/token',
+    '/api/token',
+    '/api/login',
+    '/api/auth/register',
+    '/api/users/me',
+    '/api/docs',
+    '/docs',
+    '/openapi.json',
+    '/api/openapi.json',
+  ];
+
+  for (const ep of endpoints) {
+    results[`GET ${ep}`] = await probe(`${base}${ep}`, {
       headers: { 'Content-Type': 'application/json' },
     });
-    results.test_no_auth = { status: res.status };
-  } catch (err) {
-    results.test_no_auth = { error: err instanceof Error ? err.message : 'Failed' };
   }
 
-  // Test 2: X-Service-Key header only
-  try {
-    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Service-Key': CARRIER_PULSE_SERVICE_KEY,
-      },
-    });
-    results.test_x_service_key = { status: res.status };
-  } catch (err) {
-    results.test_x_service_key = { error: err instanceof Error ? err.message : 'Failed' };
-  }
+  // Try the 401 endpoint with detailed error body inspection
+  results['GET /api/brands (no auth) detail'] = await probe(`${base}/api/brands`, {
+    headers: { 'Content-Type': 'application/json' },
+  });
 
-  // Test 3: Raw service key as Bearer token
-  try {
-    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${CARRIER_PULSE_SERVICE_KEY}`,
-      },
-    });
-    results.test_raw_bearer = { status: res.status };
-  } catch (err) {
-    results.test_raw_bearer = { error: err instanceof Error ? err.message : 'Failed' };
-  }
+  // Try POST /api/auth/login with dummy creds to see error format
+  results['POST /api/auth/login'] = await probe(`${base}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: 'test', password: 'test' }),
+  });
 
-  // Test 4: JWT signed with service key (HS256)
-  try {
-    const secret = new TextEncoder().encode(CARRIER_PULSE_SERVICE_KEY);
-    const jwt = await new SignJWT({
-      sub: 'irie-platform-service',
-      role: 'service',
-      iss: 'irie-wireless',
-    })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('1h')
-      .sign(secret);
+  results['POST /api/token'] = await probe(`${base}/api/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: 'test', password: 'test' }),
+  });
 
-    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${jwt}`,
-      },
-    });
-    results.test_signed_jwt = { status: res.status };
-  } catch (err) {
-    results.test_signed_jwt = { error: err instanceof Error ? err.message : 'Failed' };
-  }
+  // Try form-encoded login (FastAPI OAuth2 pattern)
+  results['POST /api/token (form)'] = await probe(`${base}/api/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'username=test&password=test',
+  });
 
-  // Test 5: JWT + X-Service-Key together
-  try {
-    const secret = new TextEncoder().encode(CARRIER_PULSE_SERVICE_KEY);
-    const jwt = await new SignJWT({
-      sub: 'irie-platform-service',
-      role: 'service',
-      iss: 'irie-wireless',
-    })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('1h')
-      .sign(secret);
-
-    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/brands`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${jwt}`,
-        'X-Service-Key': CARRIER_PULSE_SERVICE_KEY,
-      },
-    });
-    results.test_jwt_plus_service_key = { status: res.status };
-  } catch (err) {
-    results.test_jwt_plus_service_key = { error: err instanceof Error ? err.message : 'Failed' };
-  }
+  results['POST /api/auth/token (form)'] = await probe(`${base}/api/auth/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'username=test&password=test',
+  });
 
   return NextResponse.json(results);
 }
