@@ -1,78 +1,58 @@
 import { NextResponse } from 'next/server';
-import { SignJWT } from 'jose';
 
 const CARRIER_PULSE_BACKEND = process.env.CARRIER_PULSE_API_URL || 'http://localhost:8000';
 const CARRIER_PULSE_SERVICE_KEY = process.env.CARRIER_PULSE_SERVICE_KEY || '';
 
-async function probe(url: string, options?: RequestInit) {
-  try {
-    const res = await fetch(url, { ...options, redirect: 'manual' });
-    const body = await res.text();
-    return { status: res.status, body: body.substring(0, 300) };
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : 'Failed' };
-  }
-}
-
 export async function GET() {
-  const base = CARRIER_PULSE_BACKEND;
   const results: Record<string, unknown> = {
     timestamp: new Date().toISOString(),
-    backend_url: base,
-    service_key_length: CARRIER_PULSE_SERVICE_KEY.length,
   };
 
-  // Probe common auth/discovery endpoints
-  const endpoints = [
-    '/api/health',
-    '/api/auth/login',
-    '/api/auth/token',
-    '/api/token',
-    '/api/login',
-    '/api/auth/register',
-    '/api/users/me',
-    '/api/docs',
-    '/docs',
-    '/openapi.json',
-    '/api/openapi.json',
-  ];
+  // Fetch the full OpenAPI spec to understand auth
+  try {
+    const res = await fetch(`${CARRIER_PULSE_BACKEND}/openapi.json`);
+    const spec = await res.json();
 
-  for (const ep of endpoints) {
-    results[`GET ${ep}`] = await probe(`${base}${ep}`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    // Extract auth-related info
+    results.security_schemes = spec.components?.securitySchemes || 'none';
+    results.login_schema = spec.components?.schemas?.LoginRequest || 'not found';
+    results.login_response = spec.components?.schemas?.TokenResponse ||
+      spec.components?.schemas?.LoginResponse ||
+      spec.components?.schemas?.Token || 'not found';
+
+    // Get auth-related paths
+    const authPaths: Record<string, unknown> = {};
+    for (const [path, methods] of Object.entries(spec.paths || {})) {
+      if (path.includes('auth') || path.includes('token') || path.includes('login')) {
+        authPaths[path] = methods;
+      }
+    }
+    results.auth_endpoints = authPaths;
+
+    // Get security requirements on /api/brands
+    results.brands_endpoint = spec.paths?.['/api/brands'] || 'not found';
+
+    // List all schemas for reference
+    results.all_schema_names = Object.keys(spec.components?.schemas || {});
+  } catch (err) {
+    results.openapi_error = err instanceof Error ? err.message : 'Failed';
   }
 
-  // Try the 401 endpoint with detailed error body inspection
-  results['GET /api/brands (no auth) detail'] = await probe(`${base}/api/brands`, {
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  // Try POST /api/auth/login with dummy creds to see error format
-  results['POST /api/auth/login'] = await probe(`${base}/api/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: 'test', password: 'test' }),
-  });
-
-  results['POST /api/token'] = await probe(`${base}/api/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: 'test', password: 'test' }),
-  });
-
-  // Try form-encoded login (FastAPI OAuth2 pattern)
-  results['POST /api/token (form)'] = await probe(`${base}/api/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'username=test&password=test',
-  });
-
-  results['POST /api/auth/token (form)'] = await probe(`${base}/api/auth/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'username=test&password=test',
-  });
+  // Try login with service key as password
+  try {
+    const res = await fetch(`${CARRIER_PULSE_BACKEND}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'service@irie-wireless.com',
+        password: CARRIER_PULSE_SERVICE_KEY,
+      }),
+    });
+    const body = await res.text();
+    results.login_service_account = { status: res.status, body: body.substring(0, 300) };
+  } catch (err) {
+    results.login_service_account = { error: err instanceof Error ? err.message : 'Failed' };
+  }
 
   return NextResponse.json(results);
 }
