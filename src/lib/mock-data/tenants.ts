@@ -1,0 +1,58 @@
+import { Tenant } from '../types';
+
+export const MOCK_TENANTS: Tenant[] = [
+  {
+    id: 'tenant_bolt',
+    name: 'Bolt Mobile',
+    slug: 'bolt-mobile',
+    industry: 'MVNO',
+    region: 'US-East',
+    subscriptionTier: 'enterprise',
+    status: 'active',
+    createdAt: '2024-03-15',
+    enabledServices: ['carrier-pulse', 'usage-engine', 'analytics', 'ai-support'],
+    config: {
+      primaryColor: '#00e5ff',
+      features: { advancedAnalytics: true, aiInsights: true, customBranding: true, apiAccess: true },
+      carriers: ['TMO', 'ATT'],
+      timezone: 'America/New_York',
+      dataRetentionDays: 365,
+    },
+  },
+  {
+    id: 'tenant_verdant',
+    name: 'Verdant Wireless',
+    slug: 'verdant-wireless',
+    industry: 'MVNO',
+    region: 'US-West',
+    subscriptionTier: 'growth',
+    status: 'active',
+    createdAt: '2024-06-22',
+    enabledServices: ['carrier-pulse', 'usage-engine', 'analytics'],
+    config: {
+      primaryColor: '#00ff9d',
+      features: { advancedAnalytics: true, aiInsights: false, customBranding: true, apiAccess: true },
+      carriers: ['TMO'],
+      timezone: 'America/Los_Angeles',
+      dataRetentionDays: 180,
+    },
+  },
+  {
+    id: 'tenant_nexgen',
+    name: 'NexGen Connect',
+    slug: 'nexgen-connect',
+    industry: 'Sub-MVNO',
+    region: 'US-Central',
+    subscriptionTier: 'starter',
+    status: 'trial',
+    createdAt: '2025-01-10',
+    enabledServices: ['carrier-pulse', 'analytics'],
+    config: {
+      primaryColor: '#ffb800',
+      features: { advancedAnalytics: false, aiInsights: false, customBranding: false, apiAccess: false },
+      carriers: ['ATT'],
+      timezone: 'America/Chicago',
+      dataRetentionDays: 90,
+    },
+  },
+];
