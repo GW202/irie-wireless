@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { AuthProvider } from '@/contexts/AuthContext';
+
 import { TenantProvider } from '@/contexts/TenantContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -64,9 +64,5 @@ function PlatformShell({ children }: { children: React.ReactNode }) {
 }
 
 export default function PlatformLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthProvider>
-      <PlatformShell>{children}</PlatformShell>
-    </AuthProvider>
-  );
+  return <PlatformShell>{children}</PlatformShell>;
 }
