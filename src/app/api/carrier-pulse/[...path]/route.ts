@@ -16,16 +16,24 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
     'Content-Type': 'application/json',
   };
 
-  // Service-to-service auth — backend trusts this key
+  // Forward client auth header if present, otherwise use service key
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader) {
+    headers['Authorization'] = authHeader;
+  } else if (CARRIER_PULSE_SERVICE_KEY) {
+    // Service-to-service auth — send service key as Bearer token
+    // The Python backend validates Authorization header (JWT-based auth)
+    headers['Authorization'] = `Bearer ${CARRIER_PULSE_SERVICE_KEY}`;
+  }
+
+  // Also send as X-Service-Key for backends that check this header
   if (CARRIER_PULSE_SERVICE_KEY) {
     headers['X-Service-Key'] = CARRIER_PULSE_SERVICE_KEY;
   }
 
-  // Forward auth header if present (fallback for direct JWT auth)
-  const authHeader = request.headers.get('Authorization');
-  if (authHeader) {
-    headers['Authorization'] = authHeader;
-  }
+  // Log auth diagnostic info on non-200 responses
+  const hasServiceKey = !!CARRIER_PULSE_SERVICE_KEY;
+  const hasAuthHeader = !!authHeader;
 
   const fetchOptions: RequestInit = {
     method: request.method,
@@ -45,6 +53,19 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
     const response = await fetch(url.toString(), fetchOptions);
     const responseBody = await response.text();
 
+    if (!response.ok) {
+      console.error(
+        `[CarrierPulse] ${request.method} ${targetPath} → ${response.status}`,
+        {
+          backendUrl: CARRIER_PULSE_BACKEND,
+          hasServiceKey,
+          serviceKeyLength: CARRIER_PULSE_SERVICE_KEY.length,
+          hasAuthHeader,
+          responseBody: responseBody.substring(0, 200),
+        }
+      );
+    }
+
     return new NextResponse(responseBody || null, {
       status: response.status,
       headers: {
@@ -52,7 +73,7 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
       },
     });
   } catch (error) {
-    console.error('CarrierPulse proxy error:', error);
+    console.error('[CarrierPulse] Proxy connection error:', error);
     return NextResponse.json(
       { error: 'CarrierPulse backend unavailable' },
       { status: 502 }
