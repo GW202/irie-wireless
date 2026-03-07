@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const CARRIER_PULSE_BACKEND = process.env.CARRIER_PULSE_API_URL || 'http://localhost:8000';
+const CARRIER_PULSE_SERVICE_KEY = process.env.CARRIER_PULSE_SERVICE_KEY || '';
 
 async function proxyRequest(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
@@ -15,7 +16,12 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
     'Content-Type': 'application/json',
   };
 
-  // Forward auth header if present
+  // Service-to-service auth — backend trusts this key
+  if (CARRIER_PULSE_SERVICE_KEY) {
+    headers['X-Service-Key'] = CARRIER_PULSE_SERVICE_KEY;
+  }
+
+  // Forward auth header if present (fallback for direct JWT auth)
   const authHeader = request.headers.get('Authorization');
   if (authHeader) {
     headers['Authorization'] = authHeader;
