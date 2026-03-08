@@ -9,8 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models import Brand
-from models.user import User
-from models.user_brand import UserBrand
 from schemas import BrandResponse, BrandDetailResponse, BrandCreate, BrandUpdate
 from schemas.brand import (
     BrandOnboardRequest,
@@ -21,7 +19,6 @@ from schemas.brand import (
     CategoryDef,
 )
 from agent.onboarder import onboard_brand, assist_category
-from utils.security import get_current_user, require_role
 
 router = APIRouter(prefix="/api/brands", tags=["Brands"])
 
@@ -30,25 +27,14 @@ router = APIRouter(prefix="/api/brands", tags=["Brands"])
     "",
     response_model=list[BrandResponse],
     summary="List brands",
-    description="Returns brands visible to the current user. Superadmins see all active brands; other users see only their assigned brands.",
+    description="Returns all active brands.",
 )
 async def list_brands(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    if current_user.role == "superadmin":
-        # Superadmins see all active brands
-        result = await db.execute(
-            select(Brand).where(Brand.is_active == True).order_by(Brand.name)
-        )
-    else:
-        # Others see only assigned brands
-        result = await db.execute(
-            select(Brand)
-            .join(UserBrand, UserBrand.brand_id == Brand.id)
-            .where(UserBrand.user_id == current_user.id, Brand.is_active == True)
-            .order_by(Brand.name)
-        )
+    result = await db.execute(
+        select(Brand).where(Brand.is_active == True).order_by(Brand.name)
+    )
     return result.scalars().all()
 
 
@@ -56,12 +42,11 @@ async def list_brands(
     "/onboard",
     response_model=BrandOnboardResponse,
     summary="AI-powered brand onboarding",
-    description="Uses an AI agent to research a company and generate a brand profile with suggested monitoring categories. The generated profile is returned for human review before confirmation. Requires admin+ role.",
+    description="Uses an AI agent to research a company and generate a brand profile with suggested monitoring categories. The generated profile is returned for human review before confirmation.",
     responses={500: {"description": "Onboarding agent error"}},
 )
 async def onboard_brand_endpoint(
     data: BrandOnboardRequest,
-    current_user: User = Depends(require_role("admin")),
 ):
     try:
         profile = await onboard_brand(data.name, data.hints)
@@ -100,12 +85,11 @@ async def onboard_brand_endpoint(
     "/assist-category",
     response_model=CategoryAssistResponse,
     summary="AI-assisted category completion",
-    description="Given partial category information (name and/or focus area), uses AI to generate a fully optimized monitoring category with search queries. Requires admin+ role.",
+    description="Given partial category information (name and/or focus area), uses AI to generate a fully optimized monitoring category with search queries.",
     responses={500: {"description": "Category assist error"}},
 )
 async def assist_category_endpoint(
     data: CategoryAssistRequest,
-    current_user: User = Depends(require_role("admin")),
 ):
     try:
         result = await assist_category(
@@ -138,12 +122,11 @@ async def assist_category_endpoint(
     response_model=BrandDetailResponse,
     status_code=201,
     summary="Confirm and create an onboarded brand",
-    description="Creates a brand record from a reviewed onboarding profile. Auto-increments the slug if already taken. Assigns the brand to the creating user (unless superadmin). Requires admin+ role.",
+    description="Creates a brand record from a reviewed onboarding profile. Auto-increments the slug if already taken.",
 )
 async def confirm_brand(
     data: BrandConfirmRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
 ):
     # Ensure slug uniqueness — auto-increment suffix if taken
     slug = data.slug
@@ -171,15 +154,10 @@ async def confirm_brand(
         email_subject_prefix=data.email_subject_prefix,
         categories=categories_json,
         onboarded_at=datetime.utcnow(),
-        onboarded_by=current_user.id,
+        onboarded_by=None,
     )
     db.add(brand)
     await db.flush()
-
-    # Auto-assign the brand to the creating user (unless superadmin)
-    if current_user.role != "superadmin":
-        user_brand = UserBrand(user_id=current_user.id, brand_id=brand.id)
-        db.add(user_brand)
 
     await db.commit()
     await db.refresh(brand)
@@ -196,7 +174,6 @@ async def confirm_brand(
 async def get_brand(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
-    _user: User = Depends(get_current_user),
 ):
     brand = await db.get(Brand, brand_id)
     if not brand:
@@ -209,13 +186,12 @@ async def get_brand(
     response_model=BrandDetailResponse,
     status_code=201,
     summary="Create a brand manually",
-    description="Directly create a brand without the AI onboarding flow. Requires superadmin role. Use the /onboard endpoint for AI-assisted setup.",
+    description="Directly create a brand without the AI onboarding flow. Use the /onboard endpoint for AI-assisted setup.",
     responses={400: {"description": "Brand slug already exists"}},
 )
 async def create_brand(
     data: BrandCreate,
     db: AsyncSession = Depends(get_db),
-    _user: User = Depends(require_role("superadmin")),
 ):
     # Check slug uniqueness
     result = await db.execute(select(Brand).where(Brand.slug == data.slug))
@@ -239,14 +215,13 @@ async def create_brand(
     "/{brand_id}",
     response_model=BrandDetailResponse,
     summary="Update a brand",
-    description="Partially update a brand's profile fields such as name, context, instructions, categories, or active status. Requires admin+ role.",
+    description="Partially update a brand's profile fields such as name, context, instructions, categories, or active status.",
     responses={404: {"description": "Brand not found"}},
 )
 async def update_brand(
     brand_id: int,
     data: BrandUpdate,
     db: AsyncSession = Depends(get_db),
-    _user: User = Depends(require_role("admin")),
 ):
     brand = await db.get(Brand, brand_id)
     if not brand:
@@ -274,13 +249,12 @@ async def update_brand(
     "/{brand_id}",
     status_code=204,
     summary="Deactivate a brand",
-    description="Soft-deletes a brand by setting is_active to false. The brand's data is preserved but it will no longer appear in listings. Requires admin+ role.",
+    description="Soft-deletes a brand by setting is_active to false. The brand's data is preserved but it will no longer appear in listings.",
     responses={404: {"description": "Brand not found"}},
 )
 async def delete_brand(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
-    _user: User = Depends(require_role("admin")),
 ):
     brand = await db.get(Brand, brand_id)
     if not brand:

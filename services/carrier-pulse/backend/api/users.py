@@ -10,7 +10,7 @@ from models.user_brand import UserBrand
 from models.brand import Brand
 from schemas.user import UserCreate, UserUpdate, UserListItem, UserDetailResponse, UserBrandAssign
 from schemas.auth import BrandRef
-from utils.security import hash_password, require_role
+from utils.security import hash_password
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
@@ -33,7 +33,6 @@ async def _build_user_brands(db: AsyncSession, user_id: int) -> list[BrandRef]:
 )
 async def list_users(
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(require_role("superadmin")),
 ):
     result = await db.execute(select(User).order_by(User.created_at.desc()))
     users = result.scalars().all()
@@ -59,7 +58,6 @@ async def list_users(
 async def create_user(
     req: UserCreate,
     db: AsyncSession = Depends(get_db),
-    admin: User = Depends(require_role("superadmin")),
 ):
     # Validate role
     if req.role not in ("user", "admin", "superadmin"):
@@ -109,7 +107,6 @@ async def create_user(
 async def get_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(require_role("superadmin")),
 ):
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
@@ -138,16 +135,11 @@ async def update_user(
     user_id: int,
     req: UserUpdate,
     db: AsyncSession = Depends(get_db),
-    admin: User = Depends(require_role("superadmin")),
 ):
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-
-    # Prevent self-demotion
-    if user.id == admin.id and req.role and req.role != "superadmin":
-        raise HTTPException(status_code=400, detail="Cannot demote yourself")
 
     if req.email is not None:
         # Check uniqueness
@@ -165,9 +157,6 @@ async def update_user(
             raise HTTPException(status_code=400, detail="Invalid role")
         user.role = req.role
     if req.is_active is not None:
-        # Prevent self-deactivation
-        if user.id == admin.id and not req.is_active:
-            raise HTTPException(status_code=400, detail="Cannot deactivate yourself")
         user.is_active = req.is_active
 
     await db.commit()
@@ -194,11 +183,7 @@ async def update_user(
 async def deactivate_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
-    admin: User = Depends(require_role("superadmin")),
 ):
-    if user_id == admin.id:
-        raise HTTPException(status_code=400, detail="Cannot deactivate yourself")
-
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:
@@ -222,7 +207,6 @@ async def assign_brand(
     user_id: int,
     req: UserBrandAssign,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(require_role("superadmin")),
 ):
     # Verify user exists
     result = await db.execute(select(User).where(User.id == user_id))
@@ -266,7 +250,6 @@ async def unassign_brand(
     user_id: int,
     brand_id: int,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(require_role("superadmin")),
 ):
     # Verify user exists
     result = await db.execute(select(User).where(User.id == user_id))

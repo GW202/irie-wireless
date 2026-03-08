@@ -8,9 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models import Lead
-from models.user import User
 from schemas import LeadResponse, LeadUpdate
-from utils.security import get_current_user
 
 router = APIRouter(prefix="/api/leads", tags=["Leads"])
 
@@ -25,7 +23,6 @@ async def list_leads(
     status: str | None = None,
     vertical: str | None = None,
     db: AsyncSession = Depends(get_db),
-    _user: User = Depends(get_current_user),
 ):
     stmt = select(Lead).order_by(Lead.detected_at.desc())
     if status:
@@ -47,7 +44,6 @@ async def update_lead(
     lead_id: int,
     update: LeadUpdate,
     db: AsyncSession = Depends(get_db),
-    _user: User = Depends(get_current_user),
 ):
     lead = await db.get(Lead, lead_id)
     if not lead:

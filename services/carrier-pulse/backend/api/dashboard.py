@@ -9,9 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models import Brief, Finding, ActionItem, RunLog
-from models.user import User
 from schemas import DashboardResponse, CategoryCount
-from utils.security import get_current_user, check_brand_access
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 
@@ -25,10 +23,7 @@ router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 async def dashboard(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    await check_brand_access(brand_id, current_user, db)
-
     now = datetime.utcnow()
     # Monday of current week
     monday = now - timedelta(days=now.weekday())

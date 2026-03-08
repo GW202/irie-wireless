@@ -6,8 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models import Finding, ActionItem
-from models.user import User
-from utils.security import get_current_user, check_brand_access
 
 router = APIRouter(prefix="/api/trends", tags=["Trends"])
 
@@ -20,10 +18,7 @@ router = APIRouter(prefix="/api/trends", tags=["Trends"])
 async def trends_by_category(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    await check_brand_access(brand_id, current_user, db)
-
     stmt = (
         select(
             func.strftime("%Y-%W", Finding.created_at).label("week"),
@@ -47,10 +42,7 @@ async def trends_by_category(
 async def trends_by_carrier(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    await check_brand_access(brand_id, current_user, db)
-
     stmt = (
         select(
             func.strftime("%Y-%W", Finding.created_at).label("week"),
@@ -74,10 +66,7 @@ async def trends_by_carrier(
 async def trends_by_relevance(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    await check_brand_access(brand_id, current_user, db)
-
     stmt = (
         select(
             func.strftime("%Y-%W", Finding.created_at).label("week"),
@@ -101,10 +90,7 @@ async def trends_by_relevance(
 async def trends_actions(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    await check_brand_access(brand_id, current_user, db)
-
     stmt = (
         select(
             func.strftime("%Y-%W", ActionItem.created_at).label("week"),

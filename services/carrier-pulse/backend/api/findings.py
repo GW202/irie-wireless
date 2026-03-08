@@ -8,9 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models import Finding
-from models.user import User
 from schemas import FindingResponse
-from utils.security import get_current_user, check_brand_access
 
 router = APIRouter(prefix="/api/findings", tags=["Findings"])
 
@@ -33,10 +31,7 @@ async def list_findings(
     limit: int = Query(default=50, le=200),
     offset: int = 0,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    await check_brand_access(brand_id, current_user, db)
-
     stmt = select(Finding).where(Finding.brand_id == brand_id).order_by(Finding.created_at.desc())
 
     if category:

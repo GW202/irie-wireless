@@ -12,11 +12,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db, async_session
 from models import Brand, RunLog
-from models.user import User
 from schemas import RunLogResponse
 from agent.pipeline import run_full_pipeline
 from agent.categories import CATEGORIES
-from utils.security import get_current_user, require_role, check_brand_access
 
 router = APIRouter(prefix="/api/agent", tags=["Agent"])
 
@@ -46,7 +44,7 @@ class RunRequest(BaseModel):
 @router.post(
     "/run",
     summary="Trigger an agent run",
-    description="Starts a new intelligence-gathering pipeline run for a brand. Optionally filter to specific category IDs. Only one run can execute at a time. Stuck runs are auto-cleared. Requires admin+ role.",
+    description="Starts a new intelligence-gathering pipeline run for a brand. Optionally filter to specific category IDs. Only one run can execute at a time. Stuck runs are auto-cleared.",
     responses={
         400: {"description": "Brand not found or invalid category IDs"},
         409: {"description": "Agent is already running"},
@@ -55,12 +53,8 @@ class RunRequest(BaseModel):
 async def trigger_run(
     body: RunRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
 ):
     global _current_task
-
-    # Check brand access
-    await check_brand_access(body.brand_id, current_user, db)
 
     # Validate brand exists
     brand = await db.get(Brand, body.brand_id)
@@ -126,10 +120,7 @@ async def trigger_run(
 async def agent_status(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    await check_brand_access(brand_id, current_user, db)
-
     result = await db.execute(
         select(RunLog)
         .where(RunLog.brand_id == brand_id)
@@ -152,10 +143,7 @@ async def agent_history(
     brand_id: int,
     limit: int = 20,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    await check_brand_access(brand_id, current_user, db)
-
     result = await db.execute(
         select(RunLog)
         .where(RunLog.brand_id == brand_id)
