@@ -21,6 +21,17 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     database_url: str = "sqlite+aiosqlite:///./data/intel.db"
 
+    def model_post_init(self, __context: object) -> None:
+        # Railway provides postgresql:// but SQLAlchemy async needs postgresql+asyncpg://
+        if self.database_url.startswith("postgresql://"):
+            self.database_url = self.database_url.replace(
+                "postgresql://", "postgresql+asyncpg://", 1
+            )
+        elif self.database_url.startswith("postgres://"):
+            self.database_url = self.database_url.replace(
+                "postgres://", "postgresql+asyncpg://", 1
+            )
+
     # Email
     email_to: str = ""
     email_from: str = ""
