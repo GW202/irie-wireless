@@ -15,6 +15,18 @@ async function proxyRequest(request: NextRequest, { params }: { params: Promise<
     'Content-Type': 'application/json',
   };
 
+  // Forward Authorization header from the browser
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader) {
+    headers['Authorization'] = authHeader;
+  }
+
+  // Service-to-service auth as fallback for server-side calls
+  const serviceKey = process.env.CARRIER_PULSE_SERVICE_KEY;
+  if (!authHeader && serviceKey) {
+    headers['X-Service-Key'] = serviceKey;
+  }
+
   const fetchOptions: RequestInit = {
     method: request.method,
     headers,
