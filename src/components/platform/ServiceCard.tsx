@@ -19,6 +19,7 @@ const healthStyles: Record<string, { dot: string; label: string }> = {
 
 const statusBadges: Record<string, { label: string; className: string }> = {
   active: { label: 'Active', className: 'bg-accent-green/10 text-accent-green' },
+  prod: { label: 'Prod', className: 'bg-accent-green/10 text-accent-green' },
   coming_soon: { label: 'Coming Soon', className: 'bg-bg-4 text-text-3' },
   beta: { label: 'Beta', className: 'bg-accent-purple/10 text-accent-purple' },
 };
