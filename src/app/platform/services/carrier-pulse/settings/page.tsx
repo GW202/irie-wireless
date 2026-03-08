@@ -16,18 +16,13 @@ import { fetchApi } from '@/lib/carrier-pulse/api';
 interface LLMStats {
   active_provider: string;
   active_model: string;
-  fallback_provider: string | null;
-  fallback_model: string | null;
   openai_configured: boolean;
-  anthropic_configured: boolean;
   total_calls: number;
   successful_calls: number;
   failed_calls: number;
-  fallback_calls: number;
   total_input_tokens: number;
   total_output_tokens: number;
   avg_duration_ms: number;
-  calls_by_provider: Record<string, number>;
   calls_by_caller: Record<string, number>;
 }
 
@@ -234,32 +229,14 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-bg-1 border border-border rounded-lg p-3">
-                <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-1">Primary</p>
-                <p className="text-sm font-medium">
-                  {llmStats.active_provider === 'openai' ? 'OpenAI' : llmStats.active_provider === 'anthropic' ? 'Anthropic' : 'None'}
-                </p>
+                <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-1">Provider</p>
+                <p className="text-sm font-medium">OpenAI</p>
                 <p className="text-xs text-text-3 font-mono">{llmStats.active_model}</p>
               </div>
               <div className="bg-bg-1 border border-border rounded-lg p-3">
-                <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-1">Fallback</p>
-                <p className="text-sm font-medium">
-                  {llmStats.fallback_provider === 'openai' ? 'OpenAI' : llmStats.fallback_provider === 'anthropic' ? 'Anthropic' : 'None'}
-                </p>
-                <p className="text-xs text-text-3 font-mono">{llmStats.fallback_model || '—'}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-bg-1 border border-border rounded-lg p-3">
-                <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-1">OpenAI</p>
+                <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-1">API Key</p>
                 <p className={`text-sm font-medium ${llmStats.openai_configured ? 'text-accent-green' : 'text-accent-red'}`}>
                   {llmStats.openai_configured ? 'Configured' : 'Not Set'}
-                </p>
-              </div>
-              <div className="bg-bg-1 border border-border rounded-lg p-3">
-                <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-1">Anthropic</p>
-                <p className={`text-sm font-medium ${llmStats.anthropic_configured ? 'text-accent-green' : 'text-accent-red'}`}>
-                  {llmStats.anthropic_configured ? 'Configured' : 'Not Set'}
                 </p>
               </div>
             </div>
@@ -267,7 +244,7 @@ export default function SettingsPage() {
             {llmStats.total_calls > 0 ? (
               <div>
                 <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-2">Usage Stats</p>
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <div>
                     <p className="text-lg font-mono font-bold">{llmStats.total_calls}</p>
                     <p className="text-xs text-text-3">Total Calls</p>
@@ -280,30 +257,19 @@ export default function SettingsPage() {
                     <p className="text-lg font-mono font-bold text-accent-red">{llmStats.failed_calls}</p>
                     <p className="text-xs text-text-3">Failed</p>
                   </div>
-                  <div>
-                    <p className="text-lg font-mono font-bold text-yellow-400">{llmStats.fallback_calls}</p>
-                    <p className="text-xs text-text-3">Fallbacks</p>
-                  </div>
                 </div>
-                {Object.keys(llmStats.calls_by_provider).length > 0 ? (
-                  <div className="mt-3 text-xs text-text-3">
-                    {Object.entries(llmStats.calls_by_provider).map(([provider, count]) => (
-                      <span key={provider} className="mr-3">
-                        {provider}: <span className="text-text-2 font-mono">{count}</span>
-                      </span>
-                    ))}
-                    {llmStats.avg_duration_ms > 0 && (
-                      <span className="mr-3">
-                        avg: <span className="text-text-2 font-mono">{(llmStats.avg_duration_ms / 1000).toFixed(1)}s</span>
-                      </span>
-                    )}
-                    {(llmStats.total_input_tokens + llmStats.total_output_tokens) > 0 && (
-                      <span>
-                        tokens: <span className="text-text-2 font-mono">{((llmStats.total_input_tokens + llmStats.total_output_tokens) / 1000).toFixed(1)}k</span>
-                      </span>
-                    )}
-                  </div>
-                ) : null}
+                <div className="mt-3 text-xs text-text-3">
+                  {llmStats.avg_duration_ms > 0 && (
+                    <span className="mr-3">
+                      avg: <span className="text-text-2 font-mono">{(llmStats.avg_duration_ms / 1000).toFixed(1)}s</span>
+                    </span>
+                  )}
+                  {(llmStats.total_input_tokens + llmStats.total_output_tokens) > 0 && (
+                    <span>
+                      tokens: <span className="text-text-2 font-mono">{((llmStats.total_input_tokens + llmStats.total_output_tokens) / 1000).toFixed(1)}k</span>
+                    </span>
+                  )}
+                </div>
               </div>
             ) : null}
           </div>
