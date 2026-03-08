@@ -23,10 +23,15 @@ from schemas.brand import (
 from agent.onboarder import onboard_brand, assist_category
 from utils.security import get_current_user, require_role
 
-router = APIRouter(prefix="/api/brands", tags=["brands"])
+router = APIRouter(prefix="/api/brands", tags=["Brands"])
 
 
-@router.get("", response_model=list[BrandResponse])
+@router.get(
+    "",
+    response_model=list[BrandResponse],
+    summary="List brands",
+    description="Returns brands visible to the current user. Superadmins see all active brands; other users see only their assigned brands.",
+)
 async def list_brands(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -47,15 +52,17 @@ async def list_brands(
     return result.scalars().all()
 
 
-@router.post("/onboard", response_model=BrandOnboardResponse)
+@router.post(
+    "/onboard",
+    response_model=BrandOnboardResponse,
+    summary="AI-powered brand onboarding",
+    description="Uses an AI agent to research a company and generate a brand profile with suggested monitoring categories. The generated profile is returned for human review before confirmation. Requires admin+ role.",
+    responses={500: {"description": "Onboarding agent error"}},
+)
 async def onboard_brand_endpoint(
     data: BrandOnboardRequest,
     current_user: User = Depends(require_role("admin")),
 ):
-    """AI-powered brand onboarding — research a company and generate a profile.
-
-    Requires admin+ role. Returns the generated profile for human review.
-    """
     try:
         profile = await onboard_brand(data.name, data.hints)
     except ValueError as e:
@@ -89,15 +96,17 @@ async def onboard_brand_endpoint(
     )
 
 
-@router.post("/assist-category", response_model=CategoryAssistResponse)
+@router.post(
+    "/assist-category",
+    response_model=CategoryAssistResponse,
+    summary="AI-assisted category completion",
+    description="Given partial category information (name and/or focus area), uses AI to generate a fully optimized monitoring category with search queries. Requires admin+ role.",
+    responses={500: {"description": "Category assist error"}},
+)
 async def assist_category_endpoint(
     data: CategoryAssistRequest,
     current_user: User = Depends(require_role("admin")),
 ):
-    """AI-assisted category completion — generate an optimized category from partial input.
-
-    Requires admin+ role. Returns a single optimized CategoryDef.
-    """
     try:
         result = await assist_category(
             brand_name=data.brand_name,
@@ -124,16 +133,18 @@ async def assist_category_endpoint(
     return CategoryAssistResponse(category=category)
 
 
-@router.post("/confirm", response_model=BrandDetailResponse, status_code=201)
+@router.post(
+    "/confirm",
+    response_model=BrandDetailResponse,
+    status_code=201,
+    summary="Confirm and create an onboarded brand",
+    description="Creates a brand record from a reviewed onboarding profile. Auto-increments the slug if already taken. Assigns the brand to the creating user (unless superadmin). Requires admin+ role.",
+)
 async def confirm_brand(
     data: BrandConfirmRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_role("admin")),
 ):
-    """Confirm and create a brand from a reviewed onboarding profile.
-
-    Requires admin+ role. Creates the Brand record and assigns it to the creator.
-    """
     # Ensure slug uniqueness — auto-increment suffix if taken
     slug = data.slug
     result = await db.execute(select(Brand).where(Brand.slug == slug))
@@ -175,7 +186,13 @@ async def confirm_brand(
     return brand
 
 
-@router.get("/{brand_id}", response_model=BrandDetailResponse)
+@router.get(
+    "/{brand_id}",
+    response_model=BrandDetailResponse,
+    summary="Get brand details",
+    description="Returns full details for a specific brand including monitoring categories, company context, and analysis instructions.",
+    responses={404: {"description": "Brand not found"}},
+)
 async def get_brand(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
@@ -187,7 +204,14 @@ async def get_brand(
     return brand
 
 
-@router.post("", response_model=BrandDetailResponse, status_code=201)
+@router.post(
+    "",
+    response_model=BrandDetailResponse,
+    status_code=201,
+    summary="Create a brand manually",
+    description="Directly create a brand without the AI onboarding flow. Requires superadmin role. Use the /onboard endpoint for AI-assisted setup.",
+    responses={400: {"description": "Brand slug already exists"}},
+)
 async def create_brand(
     data: BrandCreate,
     db: AsyncSession = Depends(get_db),
@@ -211,7 +235,13 @@ async def create_brand(
     return brand
 
 
-@router.patch("/{brand_id}", response_model=BrandDetailResponse)
+@router.patch(
+    "/{brand_id}",
+    response_model=BrandDetailResponse,
+    summary="Update a brand",
+    description="Partially update a brand's profile fields such as name, context, instructions, categories, or active status. Requires admin+ role.",
+    responses={404: {"description": "Brand not found"}},
+)
 async def update_brand(
     brand_id: int,
     data: BrandUpdate,
@@ -240,13 +270,18 @@ async def update_brand(
     return brand
 
 
-@router.delete("/{brand_id}", status_code=204)
+@router.delete(
+    "/{brand_id}",
+    status_code=204,
+    summary="Deactivate a brand",
+    description="Soft-deletes a brand by setting is_active to false. The brand's data is preserved but it will no longer appear in listings. Requires admin+ role.",
+    responses={404: {"description": "Brand not found"}},
+)
 async def delete_brand(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
     _user: User = Depends(require_role("admin")),
 ):
-    """Soft-delete a brand by deactivating it. Requires admin+ role."""
     brand = await db.get(Brand, brand_id)
     if not brand:
         raise HTTPException(status_code=404, detail="Brand not found")

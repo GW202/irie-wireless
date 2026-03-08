@@ -13,10 +13,19 @@ from models.brand import Brand
 from schemas.auth import LoginRequest, TokenResponse, UserResponse, BrandRef
 from utils.security import verify_password, create_access_token, get_current_user
 
-router = APIRouter(prefix="/api/auth", tags=["auth"])
+router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    summary="Log in with email and password",
+    description="Authenticate a user with email and password credentials. Returns a JWT access token on success. The token must be included in subsequent requests as a Bearer token in the Authorization header.",
+    responses={
+        401: {"description": "Invalid email or password"},
+        403: {"description": "Account is deactivated"},
+    },
+)
 async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
@@ -41,7 +50,13 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
     return TokenResponse(access_token=token)
 
 
-@router.get("/me", response_model=UserResponse)
+@router.get(
+    "/me",
+    response_model=UserResponse,
+    summary="Get current user profile",
+    description="Returns the authenticated user's profile including their role and assigned brands. Superadmins see all active brands; other users see only their assigned brands.",
+    responses={401: {"description": "Not authenticated"}},
+)
 async def me(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

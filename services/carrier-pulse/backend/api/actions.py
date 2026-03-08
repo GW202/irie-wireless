@@ -12,14 +12,19 @@ from models.user import User
 from schemas import ActionItemResponse, ActionItemCreate, ActionItemUpdate
 from utils.security import get_current_user, require_role, check_brand_access
 
-router = APIRouter(prefix="/api/actions", tags=["actions"])
+router = APIRouter(prefix="/api/actions", tags=["Action Items"])
 
 VALID_ACTION_TYPES = {"research", "inform", "act", "review", "monitor"}
 VALID_PRIORITIES = {"urgent", "high", "medium", "low"}
 VALID_STATUSES = {"open", "in_progress", "blocked", "done", "dismissed"}
 
 
-@router.get("", response_model=list[ActionItemResponse])
+@router.get(
+    "",
+    response_model=list[ActionItemResponse],
+    summary="List action items",
+    description="Returns action items for a brand with optional filters for status (open, in_progress, blocked, done, dismissed), action type (research, inform, act, review, monitor), priority (urgent, high, medium, low), and assignee.",
+)
 async def list_actions(
     brand_id: int,
     status: str | None = None,
@@ -44,7 +49,14 @@ async def list_actions(
     return result.scalars().all()
 
 
-@router.post("", response_model=ActionItemResponse, status_code=201)
+@router.post(
+    "",
+    response_model=ActionItemResponse,
+    status_code=201,
+    summary="Create an action item",
+    description="Create a new action item for a brand. Validates action_type and priority values. Optionally links to a finding. Requires admin+ role.",
+    responses={400: {"description": "Invalid action_type or priority"}},
+)
 async def create_action(
     data: ActionItemCreate,
     db: AsyncSession = Depends(get_db),
@@ -80,7 +92,16 @@ async def create_action(
     return action
 
 
-@router.patch("/{action_id}", response_model=ActionItemResponse)
+@router.patch(
+    "/{action_id}",
+    response_model=ActionItemResponse,
+    summary="Update an action item",
+    description="Partially update an action item's fields including status, priority, assignment, notes, and due date. Requires admin+ role.",
+    responses={
+        400: {"description": "Invalid status value"},
+        404: {"description": "Action item not found"},
+    },
+)
 async def update_action(
     action_id: int,
     update: ActionItemUpdate,

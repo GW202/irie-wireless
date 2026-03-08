@@ -12,7 +12,7 @@ from schemas.user import UserCreate, UserUpdate, UserListItem, UserDetailRespons
 from schemas.auth import BrandRef
 from utils.security import hash_password, require_role
 
-router = APIRouter(prefix="/api/users", tags=["users"])
+router = APIRouter(prefix="/api/users", tags=["Users"])
 
 
 async def _build_user_brands(db: AsyncSession, user_id: int) -> list[BrandRef]:
@@ -25,7 +25,12 @@ async def _build_user_brands(db: AsyncSession, user_id: int) -> list[BrandRef]:
     return [BrandRef(id=b.id, slug=b.slug, name=b.name) for b in result.scalars().all()]
 
 
-@router.get("", response_model=list[UserListItem])
+@router.get(
+    "",
+    response_model=list[UserListItem],
+    summary="List all users",
+    description="Returns all users with their assigned brands. Requires superadmin role.",
+)
 async def list_users(
     db: AsyncSession = Depends(get_db),
     _admin: User = Depends(require_role("superadmin")),
@@ -43,7 +48,14 @@ async def list_users(
     return items
 
 
-@router.post("", response_model=UserDetailResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=UserDetailResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new user",
+    description="Create a new user account with a role and brand assignments. Requires superadmin role. Validates email uniqueness and brand existence.",
+    responses={400: {"description": "Invalid role, duplicate email, or brand not found"}},
+)
 async def create_user(
     req: UserCreate,
     db: AsyncSession = Depends(get_db),
@@ -87,7 +99,13 @@ async def create_user(
     )
 
 
-@router.get("/{user_id}", response_model=UserDetailResponse)
+@router.get(
+    "/{user_id}",
+    response_model=UserDetailResponse,
+    summary="Get user details",
+    description="Returns full details for a specific user including their brand assignments. Requires superadmin role.",
+    responses={404: {"description": "User not found"}},
+)
 async def get_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
@@ -106,7 +124,16 @@ async def get_user(
     )
 
 
-@router.patch("/{user_id}", response_model=UserDetailResponse)
+@router.patch(
+    "/{user_id}",
+    response_model=UserDetailResponse,
+    summary="Update a user",
+    description="Partially update a user's profile fields. Requires superadmin role. Prevents self-demotion and self-deactivation.",
+    responses={
+        400: {"description": "Invalid role, duplicate email, self-demotion, or self-deactivation"},
+        404: {"description": "User not found"},
+    },
+)
 async def update_user(
     user_id: int,
     req: UserUpdate,
@@ -154,13 +181,21 @@ async def update_user(
     )
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Deactivate a user",
+    description="Soft-deletes a user by setting is_active to false. Requires superadmin role. Cannot deactivate yourself.",
+    responses={
+        400: {"description": "Cannot deactivate yourself"},
+        404: {"description": "User not found"},
+    },
+)
 async def deactivate_user(
     user_id: int,
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(require_role("superadmin")),
 ):
-    """Soft-delete: deactivate the user instead of removing."""
     if user_id == admin.id:
         raise HTTPException(status_code=400, detail="Cannot deactivate yourself")
 
@@ -173,7 +208,16 @@ async def deactivate_user(
     await db.commit()
 
 
-@router.post("/{user_id}/brands", response_model=UserDetailResponse)
+@router.post(
+    "/{user_id}/brands",
+    response_model=UserDetailResponse,
+    summary="Assign a brand to a user",
+    description="Associates a brand with a user, granting them access to that brand's data. Requires superadmin role.",
+    responses={
+        400: {"description": "Brand not found or already assigned"},
+        404: {"description": "User not found"},
+    },
+)
 async def assign_brand(
     user_id: int,
     req: UserBrandAssign,
@@ -209,7 +253,15 @@ async def assign_brand(
     )
 
 
-@router.delete("/{user_id}/brands/{brand_id}", response_model=UserDetailResponse)
+@router.delete(
+    "/{user_id}/brands/{brand_id}",
+    response_model=UserDetailResponse,
+    summary="Remove a brand from a user",
+    description="Removes a brand assignment from a user, revoking their access to that brand's data. Requires superadmin role.",
+    responses={
+        404: {"description": "User or brand assignment not found"},
+    },
+)
 async def unassign_brand(
     user_id: int,
     brand_id: int,

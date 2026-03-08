@@ -13,10 +13,15 @@ from models.user import User
 from schemas import DashboardResponse, CategoryCount
 from utils.security import get_current_user, check_brand_access
 
-router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
+router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 
 
-@router.get("", response_model=DashboardResponse)
+@router.get(
+    "",
+    response_model=DashboardResponse,
+    summary="Get dashboard summary",
+    description="Returns an overview of key metrics for a brand: findings this week, high-priority count, open action items, latest brief ID, top priorities, monthly run count, and findings breakdown by category.",
+)
 async def dashboard(
     brand_id: int,
     db: AsyncSession = Depends(get_db),

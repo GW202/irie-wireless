@@ -18,7 +18,7 @@ from agent.pipeline import run_full_pipeline
 from agent.categories import CATEGORIES
 from utils.security import get_current_user, require_role, check_brand_access
 
-router = APIRouter(prefix="/api/agent", tags=["agent"])
+router = APIRouter(prefix="/api/agent", tags=["Agent"])
 
 # Track current running task
 _current_task: asyncio.Task | None = None
@@ -43,7 +43,15 @@ class RunRequest(BaseModel):
     categories: Optional[list[str]] = None  # None means all categories
 
 
-@router.post("/run")
+@router.post(
+    "/run",
+    summary="Trigger an agent run",
+    description="Starts a new intelligence-gathering pipeline run for a brand. Optionally filter to specific category IDs. Only one run can execute at a time. Stuck runs are auto-cleared. Requires admin+ role.",
+    responses={
+        400: {"description": "Brand not found or invalid category IDs"},
+        409: {"description": "Agent is already running"},
+    },
+)
 async def trigger_run(
     body: RunRequest,
     db: AsyncSession = Depends(get_db),
@@ -109,7 +117,12 @@ async def trigger_run(
     }
 
 
-@router.get("/status", response_model=RunLogResponse | None)
+@router.get(
+    "/status",
+    response_model=RunLogResponse | None,
+    summary="Get agent run status",
+    description="Returns the most recent run log for a brand, showing whether the agent is currently running, completed, or failed. Returns null if no runs exist.",
+)
 async def agent_status(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
@@ -129,7 +142,12 @@ async def agent_status(
     return run_log
 
 
-@router.get("/history", response_model=list[RunLogResponse])
+@router.get(
+    "/history",
+    response_model=list[RunLogResponse],
+    summary="Get agent run history",
+    description="Returns a paginated list of past agent runs for a brand, sorted by most recent first. Includes status, timing, finding counts, and error messages.",
+)
 async def agent_history(
     brand_id: int,
     limit: int = 20,
