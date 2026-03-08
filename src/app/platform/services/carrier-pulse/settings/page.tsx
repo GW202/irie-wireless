@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Check, Sparkles } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { useAgentStatus, useAgentHistory } from '@/hooks/carrier-pulse/useAgent';
 import { useBrandCategories } from '@/hooks/carrier-pulse/useBrandCategories';
 import { useBrands } from '@/hooks/carrier-pulse/useBrands';
@@ -10,6 +11,25 @@ import RunAgentButton from '@/components/carrier-pulse/RunAgentButton';
 import AddBrandModal from '@/components/carrier-pulse/AddBrandModal';
 import BrandProfileEditor from '@/components/carrier-pulse/BrandProfileEditor';
 import { formatDateTime } from '@/lib/carrier-pulse/formatters';
+import { fetchApi } from '@/lib/carrier-pulse/api';
+
+interface LLMStats {
+  active_provider: string;
+  active_model: string;
+  fallback_provider: string | null;
+  fallback_model: string | null;
+  openai_configured: boolean;
+  anthropic_configured: boolean;
+  total_calls: number;
+  successful_calls: number;
+  failed_calls: number;
+  fallback_calls: number;
+  total_input_tokens: number;
+  total_output_tokens: number;
+  avg_duration_ms: number;
+  calls_by_provider: Record<string, number>;
+  calls_by_caller: Record<string, number>;
+}
 
 export default function SettingsPage() {
   const { data: status } = useAgentStatus();
@@ -18,6 +38,12 @@ export default function SettingsPage() {
   const tenantId = useActiveTenantId();
   const { categories: CATEGORIES } = useBrandCategories();
   const [showAddBrand, setShowAddBrand] = useState(false);
+
+  const { data: llmStats } = useQuery<LLMStats>({
+    queryKey: ['llm-stats'],
+    queryFn: () => fetchApi<LLMStats>('/llm/stats'),
+    refetchInterval: 30000,
+  });
 
   const allCategoryIds = Object.keys(CATEGORIES);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -126,7 +152,7 @@ export default function SettingsPage() {
         </div>
         <div className="text-sm text-text-2 space-y-1">
           <p>Schedule: Every Friday at 7:00 AM EST</p>
-          <p>Model: claude-sonnet-4-20250514</p>
+          <p>Model: {llmStats?.active_model || 'loading...'}</p>
         </div>
       </div>
 
@@ -199,16 +225,91 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* Environment info */}
+      {/* LLM Provider & Usage */}
       <div className="bg-bg-2 border border-border rounded-xl p-5">
         <h3 className="text-[10px] font-mono text-text-3 uppercase tracking-widest mb-4">
-          Environment
+          LLM Provider
         </h3>
-        <div className="text-sm text-text-2 space-y-1">
-          <p>API Key: configured via .env</p>
-          <p>Database: SQLite (backend/data/intel.db)</p>
-          <p>Email delivery: configure via .env</p>
-        </div>
+        {llmStats ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-bg-1 border border-border rounded-lg p-3">
+                <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-1">Primary</p>
+                <p className="text-sm font-medium">
+                  {llmStats.active_provider === 'openai' ? 'OpenAI' : llmStats.active_provider === 'anthropic' ? 'Anthropic' : 'None'}
+                </p>
+                <p className="text-xs text-text-3 font-mono">{llmStats.active_model}</p>
+              </div>
+              <div className="bg-bg-1 border border-border rounded-lg p-3">
+                <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-1">Fallback</p>
+                <p className="text-sm font-medium">
+                  {llmStats.fallback_provider === 'openai' ? 'OpenAI' : llmStats.fallback_provider === 'anthropic' ? 'Anthropic' : 'None'}
+                </p>
+                <p className="text-xs text-text-3 font-mono">{llmStats.fallback_model || '—'}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-bg-1 border border-border rounded-lg p-3">
+                <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-1">OpenAI</p>
+                <p className={`text-sm font-medium ${llmStats.openai_configured ? 'text-accent-green' : 'text-accent-red'}`}>
+                  {llmStats.openai_configured ? 'Configured' : 'Not Set'}
+                </p>
+              </div>
+              <div className="bg-bg-1 border border-border rounded-lg p-3">
+                <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-1">Anthropic</p>
+                <p className={`text-sm font-medium ${llmStats.anthropic_configured ? 'text-accent-green' : 'text-accent-red'}`}>
+                  {llmStats.anthropic_configured ? 'Configured' : 'Not Set'}
+                </p>
+              </div>
+            </div>
+
+            {llmStats.total_calls > 0 ? (
+              <div>
+                <p className="text-[10px] font-mono text-text-3 uppercase tracking-wide mb-2">Usage Stats</p>
+                <div className="grid grid-cols-4 gap-3">
+                  <div>
+                    <p className="text-lg font-mono font-bold">{llmStats.total_calls}</p>
+                    <p className="text-xs text-text-3">Total Calls</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-mono font-bold text-accent-green">{llmStats.successful_calls}</p>
+                    <p className="text-xs text-text-3">Successful</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-mono font-bold text-accent-red">{llmStats.failed_calls}</p>
+                    <p className="text-xs text-text-3">Failed</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-mono font-bold text-yellow-400">{llmStats.fallback_calls}</p>
+                    <p className="text-xs text-text-3">Fallbacks</p>
+                  </div>
+                </div>
+                {Object.keys(llmStats.calls_by_provider).length > 0 ? (
+                  <div className="mt-3 text-xs text-text-3">
+                    {Object.entries(llmStats.calls_by_provider).map(([provider, count]) => (
+                      <span key={provider} className="mr-3">
+                        {provider}: <span className="text-text-2 font-mono">{count}</span>
+                      </span>
+                    ))}
+                    {llmStats.avg_duration_ms > 0 && (
+                      <span className="mr-3">
+                        avg: <span className="text-text-2 font-mono">{(llmStats.avg_duration_ms / 1000).toFixed(1)}s</span>
+                      </span>
+                    )}
+                    {(llmStats.total_input_tokens + llmStats.total_output_tokens) > 0 && (
+                      <span>
+                        tokens: <span className="text-text-2 font-mono">{((llmStats.total_input_tokens + llmStats.total_output_tokens) / 1000).toFixed(1)}k</span>
+                      </span>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <p className="text-sm text-text-3">Loading provider info...</p>
+        )}
       </div>
 
       {showAddBrand ? <AddBrandModal onClose={() => setShowAddBrand(false)} /> : null}
