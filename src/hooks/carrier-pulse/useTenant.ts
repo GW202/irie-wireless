@@ -1,10 +1,12 @@
 'use client';
 
-import { useContext } from 'react';
-import { TenantContext } from '@/contexts/TenantContext';
+import { useActiveBrandId } from '@/contexts/ActiveBrandContext';
 
-/** Returns the active tenant ID for CarrierPulse data scoping. */
+/**
+ * Returns the active brand ID (numeric) for CarrierPulse data scoping.
+ * This replaces the old mock tenant ID with the real backend brand ID.
+ */
 export function useActiveTenantId(): string | null {
-  const { activeTenant } = useContext(TenantContext);
-  return activeTenant?.id ?? null;
+  const brandId = useActiveBrandId();
+  return brandId !== null ? String(brandId) : null;
 }
