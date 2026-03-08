@@ -8,9 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models import ActionItem
-from models.user import User
 from schemas import ActionItemResponse, ActionItemCreate, ActionItemUpdate
-from utils.security import get_current_user, require_role, check_brand_access
 
 router = APIRouter(prefix="/api/actions", tags=["Action Items"])
 
@@ -32,10 +30,7 @@ async def list_actions(
     priority: str | None = None,
     assigned_to: str | None = None,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    await check_brand_access(brand_id, current_user, db)
-
     stmt = select(ActionItem).where(ActionItem.brand_id == brand_id).order_by(ActionItem.created_at.desc())
     if status:
         stmt = stmt.where(ActionItem.status == status)
@@ -54,16 +49,13 @@ async def list_actions(
     response_model=ActionItemResponse,
     status_code=201,
     summary="Create an action item",
-    description="Create a new action item for a brand. Validates action_type and priority values. Optionally links to a finding. Requires admin+ role.",
+    description="Create a new action item for a brand. Validates action_type and priority values. Optionally links to a finding.",
     responses={400: {"description": "Invalid action_type or priority"}},
 )
 async def create_action(
     data: ActionItemCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
 ):
-    await check_brand_access(data.brand_id, current_user, db)
-
     if data.action_type not in VALID_ACTION_TYPES:
         raise HTTPException(
             status_code=400,
@@ -96,7 +88,7 @@ async def create_action(
     "/{action_id}",
     response_model=ActionItemResponse,
     summary="Update an action item",
-    description="Partially update an action item's fields including status, priority, assignment, notes, and due date. Requires admin+ role.",
+    description="Partially update an action item's fields including status, priority, assignment, notes, and due date.",
     responses={
         400: {"description": "Invalid status value"},
         404: {"description": "Action item not found"},
@@ -106,14 +98,10 @@ async def update_action(
     action_id: int,
     update: ActionItemUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
 ):
     action = await db.get(ActionItem, action_id)
     if not action:
         raise HTTPException(status_code=404, detail="Action item not found")
-
-    # Check brand access for the action's brand
-    await check_brand_access(action.brand_id, current_user, db)
 
     if update.status is not None:
         if update.status not in VALID_STATUSES:

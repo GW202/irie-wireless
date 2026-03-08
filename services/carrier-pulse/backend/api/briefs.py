@@ -8,9 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
 from models import Brief, Finding
-from models.user import User
 from schemas import BriefResponse, BriefListItem, FindingResponse
-from utils.security import get_current_user, check_brand_access
 
 router = APIRouter(prefix="/api/briefs", tags=["Briefs"])
 
@@ -36,10 +34,7 @@ async def list_briefs(
     limit: int = 20,
     offset: int = 0,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    await check_brand_access(brand_id, current_user, db)
-
     result = await db.execute(
         select(Brief).where(Brief.brand_id == brand_id).order_by(Brief.created_at.desc()).offset(offset).limit(limit)
     )
@@ -62,10 +57,7 @@ async def list_briefs(
 async def latest_brief(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    await check_brand_access(brand_id, current_user, db)
-
     result = await db.execute(
         select(Brief).where(Brief.brand_id == brand_id).order_by(Brief.created_at.desc()).limit(1)
     )
@@ -85,7 +77,7 @@ async def latest_brief(
     description="Returns full details for a specific executive brief including top priorities and recommendations.",
     responses={404: {"description": "Brief not found"}},
 )
-async def get_brief(brief_id: int, db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_user)):
+async def get_brief(brief_id: int, db: AsyncSession = Depends(get_db)):
     brief = await db.get(Brief, brief_id)
     if not brief:
         raise HTTPException(status_code=404, detail="Brief not found")
@@ -102,7 +94,7 @@ async def get_brief(brief_id: int, db: AsyncSession = Depends(get_db), _user: Us
     description="Returns all findings associated with a specific brief's agent run, sorted by relevance and date.",
     responses={404: {"description": "Brief not found"}},
 )
-async def get_brief_findings(brief_id: int, db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_user)):
+async def get_brief_findings(brief_id: int, db: AsyncSession = Depends(get_db)):
     brief = await db.get(Brief, brief_id)
     if not brief:
         raise HTTPException(status_code=404, detail="Brief not found")

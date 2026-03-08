@@ -33,25 +33,6 @@ CarrierPulse uses an AI agent to automatically research telecom industry news,
 analyze findings by relevance, generate weekly intelligence briefs, and surface
 actionable insights and sales leads for your brands.
 
-## Authentication
-
-All endpoints (except `POST /api/auth/login` and `GET /api/health`) require a
-**Bearer token** in the `Authorization` header:
-
-```
-Authorization: Bearer <your_access_token>
-```
-
-Obtain a token via `POST /api/auth/login` with your email and password.
-
-## Roles & Permissions
-
-| Role | Capabilities |
-|------|-------------|
-| **superadmin** | Full access — manage users, all brands, all settings |
-| **admin** | Manage assigned brands, trigger agent runs, create actions |
-| **user** | Read-only access to assigned brands |
-
 ## Key Workflows
 
 1. **Brand Onboarding** — Use `POST /api/brands/onboard` to have the AI research
@@ -66,11 +47,11 @@ Obtain a token via `POST /api/auth/login` with your email and password.
 TAGS_METADATA = [
     {
         "name": "Authentication",
-        "description": "Login and retrieve the current user profile. Use `POST /api/auth/login` to obtain a JWT bearer token.",
+        "description": "Current user profile.",
     },
     {
         "name": "Users",
-        "description": "User management — create, update, deactivate users and manage brand assignments. **Superadmin only.**",
+        "description": "User management — create, update, deactivate users and manage brand assignments.",
     },
     {
         "name": "Brands",
@@ -86,7 +67,7 @@ TAGS_METADATA = [
     },
     {
         "name": "Action Items",
-        "description": "Actionable follow-ups derived from findings. Track status, priority, assignment, and due dates. **Admin+ only.**",
+        "description": "Actionable follow-ups derived from findings. Track status, priority, assignment, and due dates.",
     },
     {
         "name": "Leads",
@@ -102,7 +83,7 @@ TAGS_METADATA = [
     },
     {
         "name": "Agent",
-        "description": "Control the AI intelligence agent — trigger runs, check live status, and view historical run logs. **Admin+ only.**",
+        "description": "Control the AI intelligence agent — trigger runs, check live status, and view historical run logs.",
     },
     {
         "name": "System",
