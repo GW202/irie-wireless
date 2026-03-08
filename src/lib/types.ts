@@ -164,7 +164,7 @@ export interface ServiceDefinition {
   requiredPermission: Permission;
   health: ServiceHealth;
   version: string;
-  status: 'active' | 'coming_soon' | 'beta';
+  status: 'active' | 'coming_soon' | 'beta' | 'prod';
 }
 
 export type NotificationSeverity = 'info' | 'warning' | 'critical' | 'success';

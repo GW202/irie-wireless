@@ -13,6 +13,7 @@ function PlatformShell({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -35,8 +36,10 @@ function PlatformShell({ children }: { children: React.ReactNode }) {
           <PlatformSidebar
             mobileOpen={mobileMenuOpen}
             onMobileClose={() => setMobileMenuOpen(false)}
+            collapsed={sidebarCollapsed}
+            onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
           />
-          <div className="md:ml-64 flex-1 min-h-screen flex flex-col">
+          <div className={`${sidebarCollapsed ? 'md:ml-[68px]' : 'md:ml-64'} flex-1 min-h-screen flex flex-col transition-all duration-200`}>
             <PlatformTopBar onMenuClick={() => setMobileMenuOpen(true)} />
             <main className="p-8 max-sm:p-4 flex-1">{children}</main>
             <footer className="px-8 py-3 border-t border-border flex items-center justify-between text-[10px] font-mono text-text-3 bg-bg-0/50 max-sm:flex-col max-sm:gap-2 max-sm:py-4">
