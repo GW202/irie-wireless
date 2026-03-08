@@ -60,18 +60,27 @@ _COLUMN_MIGRATIONS = [
 ]
 
 
+def _run_column_migrations(connection):
+    """Run column migrations using the sync connection (same as create_all uses)."""
+    for sql in _COLUMN_MIGRATIONS:
+        print(f"[init_db] Running migration: {sql}")
+        connection.execute(text(sql))
+    print(f"[init_db] Column migrations complete ({len(_COLUMN_MIGRATIONS)} statements)")
+
+
 async def init_db():
     """Create all tables on startup and add any missing columns."""
     from models import Brand, Finding, Brief, ActionItem, RunLog, User, UserBrand, Lead  # noqa: F401
 
+    print("[init_db] Creating tables...")
     async with _get_engine().begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    # Add any columns missing from existing tables (plain SQL, no ORM introspection)
+    print("[init_db] Running column migrations...")
     async with _get_engine().begin() as conn:
-        for sql in _COLUMN_MIGRATIONS:
-            logger.info("Running migration: %s", sql)
-            await conn.execute(text(sql))
+        await conn.run_sync(_run_column_migrations)
+
+    print("[init_db] Done.")
 
 
 # Convenience alias so callers that import ``async_session`` keep working.
