@@ -15,6 +15,8 @@ import {
   Clock,
 } from 'lucide-react';
 import RunAgentButton from '@/components/carrier-pulse/RunAgentButton';
+import { ActiveBrandProvider, useActiveBrandContext } from '@/contexts/ActiveBrandContext';
+import BrandSelector from '@/components/carrier-pulse/BrandSelector';
 
 const CP_TABS = [
   { href: '/platform/services/carrier-pulse', label: 'Dashboard', icon: LayoutDashboard },
@@ -27,8 +29,9 @@ const CP_TABS = [
   { href: '/platform/services/carrier-pulse/settings', label: 'Settings', icon: Settings },
 ];
 
-export default function CarrierPulseLayout({ children }: { children: React.ReactNode }) {
+function CarrierPulseInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { activeBrandId, setActiveBrandId } = useActiveBrandContext();
 
   return (
     <div className="space-y-6">
@@ -44,6 +47,7 @@ export default function CarrierPulseLayout({ children }: { children: React.React
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <BrandSelector selectedBrandId={activeBrandId} onSelectBrand={setActiveBrandId} />
           <RunAgentButton />
           <span className="flex items-center gap-1.5 text-[10px] font-mono px-2 py-1 bg-accent-cyan/10 text-accent-cyan rounded">
             <Clock size={10} /> v1.0.0
@@ -81,5 +85,13 @@ export default function CarrierPulseLayout({ children }: { children: React.React
       {/* Page content */}
       {children}
     </div>
+  );
+}
+
+export default function CarrierPulseLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <ActiveBrandProvider>
+      <CarrierPulseInner>{children}</CarrierPulseInner>
+    </ActiveBrandProvider>
   );
 }

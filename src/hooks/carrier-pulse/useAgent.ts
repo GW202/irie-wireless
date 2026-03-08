@@ -32,7 +32,7 @@ export function useRunAgent() {
   return useMutation({
     mutationFn: (categories?: string[] | null) =>
       postApi('/agent/run', {
-        brand_id: tenantId,
+        brand_id: Number(tenantId),
         ...(categories ? { categories } : {}),
       }),
     onSuccess: () => {
