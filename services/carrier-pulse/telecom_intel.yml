@@ -1,0 +1,40 @@
+name: USA Mobile — Weekly Telecom Intelligence
+
+on:
+  # Runs every Friday at 7:00 AM EST (12:00 UTC)
+  schedule:
+    - cron: '0 12 * * 5'
+  
+  # Also allow manual trigger for testing
+  workflow_dispatch:
+
+jobs:
+  telecom-intel:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install anthropic
+      
+      - name: Run Intelligence Agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        run: python telecom_intel_agent.py --all
+      
+      - name: Upload Brief as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: telecom-brief-${{ github.run_number }}
+          path: usa_mobile_intel_brief_*.md
+          retention-days: 90

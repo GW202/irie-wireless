@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Target,
   Users,
+  UserCircle,
   Settings,
   Clock,
 } from 'lucide-react';
@@ -21,7 +22,8 @@ const CP_TABS = [
   { href: '/platform/services/carrier-pulse/briefs', label: 'Briefs', icon: BookOpen },
   { href: '/platform/services/carrier-pulse/trends', label: 'Trends', icon: TrendingUp },
   { href: '/platform/services/carrier-pulse/actions', label: 'Actions', icon: Target },
-  { href: '/platform/services/carrier-pulse/leads', label: 'Leads', icon: Users },
+  { href: '/platform/services/carrier-pulse/leads', label: 'Leads', icon: UserCircle },
+  { href: '/platform/services/carrier-pulse/users', label: 'Users', icon: Users },
   { href: '/platform/services/carrier-pulse/settings', label: 'Settings', icon: Settings },
 ];
 

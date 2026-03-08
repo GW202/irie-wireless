@@ -8,7 +8,7 @@ export function useAgentStatus() {
   const tenantId = useActiveTenantId();
   return useQuery({
     queryKey: ['cp-agent', 'status', tenantId],
-    queryFn: () => fetchApi<{ status: string; search_count?: number }>(`/agent/status?brand_id=${tenantId}`),
+    queryFn: () => fetchApi<{ status: string; search_count?: number; completed_at?: string }>(`/agent/status?brand_id=${tenantId}`),
     enabled: !!tenantId,
     refetchInterval: (query) => {
       const data = query.state.data;
