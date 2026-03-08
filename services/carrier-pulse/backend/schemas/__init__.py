@@ -17,6 +17,7 @@ from schemas.run_log import RunLogResponse
 from schemas.dashboard import DashboardResponse, CategoryCount
 from schemas.auth import LoginRequest, TokenResponse, UserResponse, BrandRef
 from schemas.user import UserCreate, UserUpdate, UserListItem, UserDetailResponse, UserBrandAssign
+from schemas.lead import LeadResponse, LeadUpdate
 
 __all__ = [
     "BrandResponse",
@@ -48,4 +49,6 @@ __all__ = [
     "UserListItem",
     "UserDetailResponse",
     "UserBrandAssign",
+    "LeadResponse",
+    "LeadUpdate",
 ]
