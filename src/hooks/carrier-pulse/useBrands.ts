@@ -2,14 +2,11 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchApi, patchApi, postApi, deleteApi } from '@/lib/carrier-pulse/api';
-import { useActiveTenantId } from './useTenant';
 
 export function useBrands() {
-  const tenantId = useActiveTenantId();
   return useQuery({
-    queryKey: ['cp-brands', tenantId],
+    queryKey: ['cp-brands'],
     queryFn: () => fetchApi<Array<{ id: number; name: string; slug: string; is_active: boolean }>>('/brands'),
-    enabled: !!tenantId,
   });
 }
 
