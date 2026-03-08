@@ -7,8 +7,9 @@ from sqlalchemy.orm import DeclarativeBase
 
 from config import settings
 
-# Ensure the data directory exists for SQLite
-os.makedirs("data", exist_ok=True)
+# Ensure the data directory exists for SQLite (skip for PostgreSQL)
+if "sqlite" in settings.database_url:
+    os.makedirs("data", exist_ok=True)
 
 engine = create_async_engine(settings.database_url, echo=False)
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -26,7 +27,7 @@ async def get_db():
 
 async def init_db():
     """Create all tables on startup."""
-    from models import Brand, Finding, Brief, ActionItem, RunLog, User, UserBrand  # noqa: F401
+    from models import Brand, Finding, Brief, ActionItem, RunLog, User, UserBrand, Lead  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
