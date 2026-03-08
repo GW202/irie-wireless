@@ -12,10 +12,15 @@ from models.user import User
 from schemas import FindingResponse
 from utils.security import get_current_user, check_brand_access
 
-router = APIRouter(prefix="/api/findings", tags=["findings"])
+router = APIRouter(prefix="/api/findings", tags=["Findings"])
 
 
-@router.get("", response_model=list[FindingResponse])
+@router.get(
+    "",
+    response_model=list[FindingResponse],
+    summary="List findings for a brand",
+    description="Returns carrier intelligence findings for a brand with optional filters for category, carrier, relevance level, sales lead flag, date range, and free-text search. Results are paginated and sorted by newest first.",
+)
 async def list_findings(
     brand_id: int,
     category: str | None = None,

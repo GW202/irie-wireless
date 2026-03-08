@@ -9,16 +9,19 @@ from models import Finding, ActionItem
 from models.user import User
 from utils.security import get_current_user, check_brand_access
 
-router = APIRouter(prefix="/api/trends", tags=["trends"])
+router = APIRouter(prefix="/api/trends", tags=["Trends"])
 
 
-@router.get("/categories")
+@router.get(
+    "/categories",
+    summary="Findings trend by category",
+    description="Returns weekly finding counts grouped by monitoring category. Useful for visualizing which categories are generating the most intelligence over time.",
+)
 async def trends_by_category(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Finding count by category per week."""
     await check_brand_access(brand_id, current_user, db)
 
     stmt = (
@@ -36,13 +39,16 @@ async def trends_by_category(
     return [{"week": r.week, "category": r.category, "count": r.count} for r in rows]
 
 
-@router.get("/carriers")
+@router.get(
+    "/carriers",
+    summary="Findings trend by carrier",
+    description="Returns weekly finding counts grouped by carrier (e.g., AT&T, Verizon, T-Mobile). Useful for tracking which carriers are most active in news and regulatory filings.",
+)
 async def trends_by_carrier(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Finding count by carrier per week."""
     await check_brand_access(brand_id, current_user, db)
 
     stmt = (
@@ -60,13 +66,16 @@ async def trends_by_carrier(
     return [{"week": r.week, "carrier": r.carrier, "count": r.count} for r in rows]
 
 
-@router.get("/relevance")
+@router.get(
+    "/relevance",
+    summary="Findings trend by relevance",
+    description="Returns weekly finding counts grouped by relevance level (high, medium, low). Helps track the signal-to-noise ratio of intelligence over time.",
+)
 async def trends_by_relevance(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Finding count by relevance per week."""
     await check_brand_access(brand_id, current_user, db)
 
     stmt = (
@@ -84,13 +93,16 @@ async def trends_by_relevance(
     return [{"week": r.week, "relevance": r.relevance, "count": r.count} for r in rows]
 
 
-@router.get("/actions")
+@router.get(
+    "/actions",
+    summary="Action items trend",
+    description="Returns weekly counts of new action items created. Useful for tracking the operational impact of intelligence findings over time.",
+)
 async def trends_actions(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """New action items per week."""
     await check_brand_access(brand_id, current_user, db)
 
     stmt = (

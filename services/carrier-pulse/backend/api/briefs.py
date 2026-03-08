@@ -12,7 +12,7 @@ from models.user import User
 from schemas import BriefResponse, BriefListItem, FindingResponse
 from utils.security import get_current_user, check_brand_access
 
-router = APIRouter(prefix="/api/briefs", tags=["briefs"])
+router = APIRouter(prefix="/api/briefs", tags=["Briefs"])
 
 
 def _parse_json_field(value: str | None):
@@ -25,7 +25,12 @@ def _parse_json_field(value: str | None):
         return value
 
 
-@router.get("", response_model=list[BriefListItem])
+@router.get(
+    "",
+    response_model=list[BriefListItem],
+    summary="List briefs for a brand",
+    description="Returns executive intelligence briefs for a brand, paginated and sorted by newest first. Each brief summarizes findings from an agent run.",
+)
 async def list_briefs(
     brand_id: int,
     limit: int = 20,
@@ -47,7 +52,13 @@ async def list_briefs(
     return items
 
 
-@router.get("/latest", response_model=BriefResponse)
+@router.get(
+    "/latest",
+    response_model=BriefResponse,
+    summary="Get the latest brief",
+    description="Returns the most recent executive brief for a brand, including top priorities and recommendations.",
+    responses={404: {"description": "No briefs found for this brand"}},
+)
 async def latest_brief(
     brand_id: int,
     db: AsyncSession = Depends(get_db),
@@ -67,7 +78,13 @@ async def latest_brief(
     return resp
 
 
-@router.get("/{brief_id}", response_model=BriefResponse)
+@router.get(
+    "/{brief_id}",
+    response_model=BriefResponse,
+    summary="Get a specific brief",
+    description="Returns full details for a specific executive brief including top priorities and recommendations.",
+    responses={404: {"description": "Brief not found"}},
+)
 async def get_brief(brief_id: int, db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_user)):
     brief = await db.get(Brief, brief_id)
     if not brief:
@@ -78,7 +95,13 @@ async def get_brief(brief_id: int, db: AsyncSession = Depends(get_db), _user: Us
     return resp
 
 
-@router.get("/{brief_id}/findings", response_model=list[FindingResponse])
+@router.get(
+    "/{brief_id}/findings",
+    response_model=list[FindingResponse],
+    summary="Get findings for a brief",
+    description="Returns all findings associated with a specific brief's agent run, sorted by relevance and date.",
+    responses={404: {"description": "Brief not found"}},
+)
 async def get_brief_findings(brief_id: int, db: AsyncSession = Depends(get_db), _user: User = Depends(get_current_user)):
     brief = await db.get(Brief, brief_id)
     if not brief:
