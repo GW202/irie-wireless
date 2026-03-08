@@ -162,8 +162,14 @@ async def _ensure_default_brands():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
-    await _ensure_default_admin()
-    await _ensure_default_brands()
+    try:
+        await _ensure_default_admin()
+    except Exception as e:
+        print(f"[lifespan] Warning: failed to seed default admin: {e}")
+    try:
+        await _ensure_default_brands()
+    except Exception as e:
+        print(f"[lifespan] Warning: failed to seed default brands: {e}")
     start_scheduler()
     yield
 
