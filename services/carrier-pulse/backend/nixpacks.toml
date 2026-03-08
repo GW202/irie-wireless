@@ -1,2 +1,2 @@
 [phases.setup]
-aptPkgs = ["...", "build-essential", "libpq-dev"]
+aptPkgs = ["build-essential", "libpq-dev"]
