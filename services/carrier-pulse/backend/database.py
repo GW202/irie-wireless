@@ -47,20 +47,17 @@ async def get_db():
         yield session
 
 
-async def _sync_missing_columns(conn):
-    """Add columns defined in models but missing from the database.
-
-    Uses PostgreSQL ADD COLUMN IF NOT EXISTS so it is safe to run repeatedly.
-    """
-    for table in Base.metadata.sorted_tables:
-        for col in table.columns:
-            col_type = col.type.compile(dialect=conn.dialect)
-            sql = (
-                f'ALTER TABLE IF EXISTS {table.name} '
-                f'ADD COLUMN IF NOT EXISTS "{col.name}" {col_type}'
-            )
-            logger.info("Ensuring column exists: %s.%s", table.name, col.name)
-            await conn.execute(text(sql))
+_COLUMN_MIGRATIONS = [
+    # brands table — columns that may be missing from older database schemas
+    'ALTER TABLE IF EXISTS brands ADD COLUMN IF NOT EXISTS "company_context" TEXT',
+    'ALTER TABLE IF EXISTS brands ADD COLUMN IF NOT EXISTS "analysis_instructions" TEXT',
+    'ALTER TABLE IF EXISTS brands ADD COLUMN IF NOT EXISTS "email_subject_prefix" VARCHAR',
+    'ALTER TABLE IF EXISTS brands ADD COLUMN IF NOT EXISTS "categories" TEXT',
+    'ALTER TABLE IF EXISTS brands ADD COLUMN IF NOT EXISTS "is_active" BOOLEAN DEFAULT TRUE',
+    'ALTER TABLE IF EXISTS brands ADD COLUMN IF NOT EXISTS "created_at" TIMESTAMP',
+    'ALTER TABLE IF EXISTS brands ADD COLUMN IF NOT EXISTS "onboarded_at" TIMESTAMP',
+    'ALTER TABLE IF EXISTS brands ADD COLUMN IF NOT EXISTS "onboarded_by" INTEGER',
+]
 
 
 async def init_db():
@@ -70,9 +67,11 @@ async def init_db():
     async with _get_engine().begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    # Run column sync in a separate connection to avoid inspector caching issues
+    # Add any columns missing from existing tables (plain SQL, no ORM introspection)
     async with _get_engine().begin() as conn:
-        await _sync_missing_columns(conn)
+        for sql in _COLUMN_MIGRATIONS:
+            logger.info("Running migration: %s", sql)
+            await conn.execute(text(sql))
 
 
 # Convenience alias so callers that import ``async_session`` keep working.
