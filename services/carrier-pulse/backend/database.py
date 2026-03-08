@@ -3,7 +3,7 @@
 import logging
 import os
 
-from sqlalchemy import inspect, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
@@ -47,35 +47,20 @@ async def get_db():
         yield session
 
 
-def _get_column_type_sql(col):
-    """Return a SQL type string for a SQLAlchemy column."""
-    dialect = _get_engine().dialect
-    return col.type.compile(dialect=dialect)
+async def _sync_missing_columns(conn):
+    """Add columns defined in models but missing from the database.
 
-
-def _sync_missing_columns(conn):
-    """Add any columns defined in models but missing from the database."""
-    inspector = inspect(conn)
+    Uses PostgreSQL ADD COLUMN IF NOT EXISTS so it is safe to run repeatedly.
+    """
     for table in Base.metadata.sorted_tables:
-        if not inspector.has_table(table.name):
-            continue
-        existing = {c["name"] for c in inspector.get_columns(table.name)}
         for col in table.columns:
-            if col.name not in existing:
-                col_type = _get_column_type_sql(col)
-                nullable = "NULL" if col.nullable else "NOT NULL"
-                default = ""
-                if col.server_default is not None:
-                    default = f" DEFAULT {col.server_default.arg}"
-                elif col.nullable:
-                    default = " DEFAULT NULL"
-                    nullable = "NULL"
-                else:
-                    # Can't add NOT NULL column without default to existing rows
-                    nullable = "NULL"
-                sql = f'ALTER TABLE {table.name} ADD COLUMN "{col.name}" {col_type} {nullable}{default}'
-                logger.info("Adding missing column: %s", sql)
-                conn.execute(text(sql))
+            col_type = col.type.compile(dialect=conn.dialect)
+            sql = (
+                f'ALTER TABLE IF EXISTS {table.name} '
+                f'ADD COLUMN IF NOT EXISTS "{col.name}" {col_type}'
+            )
+            logger.info("Ensuring column exists: %s.%s", table.name, col.name)
+            await conn.execute(text(sql))
 
 
 async def init_db():
@@ -84,7 +69,10 @@ async def init_db():
 
     async with _get_engine().begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        await conn.run_sync(_sync_missing_columns)
+
+    # Run column sync in a separate connection to avoid inspector caching issues
+    async with _get_engine().begin() as conn:
+        await _sync_missing_columns(conn)
 
 
 # Convenience alias so callers that import ``async_session`` keep working.
