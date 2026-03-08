@@ -10,7 +10,7 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     requiredPermission: 'service:carrier-pulse',
     health: 'healthy',
     version: '1.0.0',
-    status: 'active',
+    status: 'prod',
   },
   {
     name: 'Usage Engine',
@@ -43,7 +43,7 @@ export const PLATFORM_SERVICES: ServiceDefinition[] = [
     requiredPermission: 'service:ai-support',
     health: 'healthy',
     version: '0.7.0',
-    status: 'beta',
+    status: 'coming_soon',
   },
 ];
 
