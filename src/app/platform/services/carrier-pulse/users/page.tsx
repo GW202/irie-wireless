@@ -21,7 +21,7 @@ import {
   useUnassignBrand,
 } from '@/hooks/carrier-pulse/useUsers';
 import { useBrands } from '@/hooks/carrier-pulse/useBrands';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import InviteUserModal from '@/components/carrier-pulse/InviteUserModal';
 
 interface Brand {
@@ -325,7 +325,7 @@ function UserRow({
 export default function UsersPage() {
   const { data: users, isLoading } = useUsers();
   const { data: brands } = useBrands();
-  const { user: currentUser } = useAuth();
+  const { session } = useAuth();
   const [showInvite, setShowInvite] = useState(false);
 
   if (isLoading) {
@@ -372,7 +372,7 @@ export default function UsersPage() {
                 key={u.id}
                 user={u}
                 allBrands={brands || []}
-                currentUserId={currentUser?.id}
+                currentUserId={session?.user?.id as number | undefined}
               />
             ))}
           </tbody>

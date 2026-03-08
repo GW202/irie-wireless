@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 interface RoleGuardProps {
   requiredRole: string;
@@ -16,9 +16,9 @@ const ROLE_LEVELS: Record<string, number> = {
 };
 
 export default function RoleGuard({ requiredRole, children }: RoleGuardProps) {
-  const { user } = useAuth();
+  const { session } = useAuth();
 
-  const userLevel = ROLE_LEVELS[user?.role || ''] || 0;
+  const userLevel = ROLE_LEVELS[session?.user?.role || ''] || 0;
   const requiredLevel = ROLE_LEVELS[requiredRole] || 0;
 
   if (userLevel < requiredLevel) {

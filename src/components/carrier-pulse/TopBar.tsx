@@ -3,12 +3,12 @@
 import { LogOut, User } from 'lucide-react';
 import RunAgentButton from './RunAgentButton';
 import { useAgentStatus } from '@/hooks/carrier-pulse/useAgent';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { timeAgo } from '@/lib/carrier-pulse/formatters';
 
 export default function TopBar() {
   const { data: status } = useAgentStatus();
-  const { user, logout } = useAuth();
+  const { session, logout } = useAuth();
 
   return (
     <header className="h-14 bg-bg-surface border-b border-border flex items-center justify-between px-6 shrink-0">
@@ -24,11 +24,11 @@ export default function TopBar() {
       </div>
       <div className="flex items-center gap-4">
         <RunAgentButton />
-        {user ? (
+        {session?.user ? (
           <div className="flex items-center gap-3 pl-4 border-l border-border">
             <div className="flex items-center gap-1.5 text-sm text-text-secondary">
               <User size={14} className="text-text-muted" />
-              {user.name || user.email}
+              {session.user.name || session.user.email}
             </div>
             <button
               onClick={logout}
