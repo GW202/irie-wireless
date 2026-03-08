@@ -19,6 +19,7 @@ from api.trends import router as trends_router
 from api.dashboard import router as dashboard_router
 from api.agent import router as agent_router
 from api.users import router as users_router
+from api.leads import router as leads_router
 
 API_DESCRIPTION = """
 # CarrierPulse API
@@ -207,6 +208,7 @@ app.include_router(trends_router)
 app.include_router(dashboard_router)
 app.include_router(agent_router)
 app.include_router(users_router)
+app.include_router(leads_router)
 
 
 @app.get("/api/health", tags=["System"], summary="Health check",
