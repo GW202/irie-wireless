@@ -10,6 +10,7 @@ import {
   Plug,
   Bell,
   ScrollText,
+  Wrench,
 } from 'lucide-react';
 
 const SETTINGS_NAV = [
@@ -20,6 +21,7 @@ const SETTINGS_NAV = [
   { icon: Plug, label: 'Integrations', href: '/platform/settings/integrations' },
   { icon: Bell, label: 'Notifications', href: '/platform/settings/notifications' },
   { icon: ScrollText, label: 'Audit Log', href: '/platform/settings/audit-log' },
+  { icon: Wrench, label: 'Admin', href: '/platform/settings/admin' },
 ];
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
